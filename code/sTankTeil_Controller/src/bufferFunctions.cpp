@@ -1,0 +1,202 @@
+#include "bufferFunctions.h"
+
+// FIFO Buffer
+CircularBuffer<recData, 15> fifo_input_buffer;
+
+// Objekt für Recieved Data - von UART
+recData getRecDataObj(int16_t id, String value) {
+  recData dta;
+  dta.id = id;
+  dta.value = value;
+  return dta;
+}
+
+bool buffer_tick() {
+  bool hasActivity = !fifo_input_buffer.isEmpty();
+
+  while(!fifo_input_buffer.isEmpty()) {
+    recData dta = fifo_input_buffer.shift();
+    int iVal = atoi(dta.value.c_str());
+
+    switch(dta.id) {
+      case COM_ID_FLOWCALIBRATE:
+        if(iVal == 0) {
+          flowSensor.resetPulses();
+        }
+        break;
+      
+      // Config
+      case COM_ID_FLOW_TICKS:
+        configManager.setImpulseProLiter(iVal);
+        flowSensor.setCalibration(configManager.getImpulseProLiter());
+        pressureSensor.setNumSamples(configManager.getAnzahlMesswerteMittelwert());
+        break;
+      case COM_ID_PRESSURE_AVG:
+        configManager.setAnzahlMesswerteMittelwert(iVal);
+        break;
+      case COM_ID_AKKU_MIN:
+        configManager.setMinimalspannungAkku(iVal);
+        break;
+      case COM_ID_AKKU_CALIB:
+        // TODO: Kalibrierungsfaktor fehlt noch in EEPROM
+        // configManager.getConfig().kalibFactorSpannung = iVal;
+        break;
+      case COM_ID_BEEP:
+        configManager.setSignaltonOn(iVal);
+        buzzer.setActive(iVal);
+        break;
+      case COM_ID_PWR_MANUEL:
+        configManager.setManuellePumpenleistung(iVal);
+        break;
+      case COM_ID_SYSTEM_OFF:
+        configManager.setSystemabschaltungSekunden(iVal);
+        break;
+      case COM_ID_WRITE_EEPROM:
+        if(iVal == 5) { configManager.saveConfig(); buzzer.playPositiveTone(); }
+        break;
+    
+      // ModellDaten
+      case COM_ID_TANKTYPE:
+        model.setTankType(iVal);
+        break;
+      case COM_ID_PUMP_PWR:
+        model.setPumpPwr(iVal);
+        if(pump.isOn()) {
+          pump.adjustSpeed(iVal);
+        // } else {
+        //   pump.setSpeed(iVal);
+        }
+        break;
+      case COM_ID_PRESSURE_DROP_HOSE_BREAK:
+        model.setPressureDropHoseBreak(iVal);
+        break;
+      case COM_ID_MAX_REFUEL_TIME:
+        model.setMaxRefuelTime(iVal);
+        break;
+      case COM_ID_MAX_DEFUEL_TIME:
+        model.setMaxDefuelTime(iVal);
+        break;
+      case COM_ID_BACK_FUEL_TIME:
+        model.setBackFuelTime(iVal);
+        break;
+      case COM_ID_AIR_REMOVAL_TIME:
+        model.setAirRemovalTime(iVal);
+        break;
+      case COM_ID_PUMP_STOP_EMPTY_DELAY:
+        model.setPumpStopEmptyDelay(iVal);
+        break;
+      case COM_ID_MESSUREMENT_DELAY:
+        model.setMessurementDelay(iVal);
+        break;
+      case COM_ID_MAX_REFUEL_ML:
+        model.setMaxRefuelMl(iVal);
+        break;
+      case COM_ID_MAX_DEFUEL_ML:
+        model.setMaxDefuelMl(iVal);
+        break;
+      case COM_ID_MAX_PRESSURE:
+        model.setMaxPressure(iVal);
+        break;
+      case COM_ID_PUMP_STOP_PRESSURE_DIFF:
+        model.setPumpStopPressureDiff(iVal);
+        break;
+      case COM_ID_PUMP_STOP_PRESSURE_EMPTY:
+        model.setPumpStopPressureEmpty(iVal);
+        break;
+      case COM_ID_HOPPER_PRESSURE:
+        model.setHopperPressure(iVal);
+        break;
+      case COM_ID_PUMP_STOP_HOPPER_PRESSURE_DIFF:
+        model.setPumpStopHopperPressureDiff(iVal);
+        break;
+      case COM_ID_SAVE_MODEL_EEPROM:
+        if(iVal == 5) {
+          if(pumpMode == MODE_MANUELL) {
+            model.clearCRCeeprom(EEPROM_ADR_MODEL);
+          } else {
+            model.saveToEEPROM(EEPROM_ADR_MODEL);
+          }
+          buzzer.playPositiveTone();
+        }
+        
+        break;
+
+      // Pumpe
+      case COM_ID_PUMP_MODE:
+        pumpMode = iVal;
+
+        // wenn keine Remote vorhanden
+        if(!bRemoteConnected) {
+          if(pumpMode == MODE_AUTO) {
+            // TODO: prüfen ob Modeldaten vorhanden
+            if(bHasModelSaved) {
+              digitalWrite(PIN_LED_MODEL, HIGH);
+              digitalWrite(PIN_LED_MANUEL, LOW);
+            } else {
+              pumpMode = MODE_MANUELL;
+            }
+          }
+          if(pumpMode == MODE_MANUELL) {
+            digitalWrite(PIN_LED_MODEL, LOW);
+            digitalWrite(PIN_LED_MANUEL, HIGH);
+          }
+        }
+        //initModelData = true;
+        //remoteCom.sendData('R', COM_ID_TANKTYPE, "",  true);
+        break;
+      case COM_ID_BROADCAST:
+        if(iVal == 0) {
+          bSendBroadcast = false;
+        } else {
+          bSendBroadcast = true;
+          pressureSensor.calibSensor();
+        }
+        break;
+      case COM_ID_PUMP_CONTROL:
+        pump.stop();
+        delay(100);
+        switch(iVal) {
+          case CTR_TANKEN:
+            pressureSensor.calibSensor();
+            flowSensor.resetTotalFlow();
+            if(pumpMode == MODE_AUTO) {
+              setTankSequence((uint8_t) iVal, (uint8_t) model.getTankType());
+              startTankSequence();
+            } else {
+              if(bRemoteConnected) {
+                pump.forwardRamp(model.getPumpPwr());
+                remoteCom.sendData('W', COM_ID_STATUS, "tanken");
+              } else {
+                pump.forwardRamp(configManager.getManuellePumpenleistung());
+              }
+            }
+            break;
+          case CTR_ENTTANKEN:
+            pressureSensor.calibSensor();
+            flowSensor.resetTotalFlow();
+            if(pumpMode == MODE_AUTO) {
+              setTankSequence((uint8_t) iVal, (uint8_t) model.getTankType());
+              startTankSequence();
+            } else {
+              if(bRemoteConnected) {
+                pump.backwardRamp(model.getPumpPwr());
+                remoteCom.sendData('W', COM_ID_STATUS, "enttanken");
+              } else {
+                pump.backwardRamp(configManager.getManuellePumpenleistung());
+              }
+            }
+            break;
+          case CTR_STOP:
+          default:
+            stopTankSequence();
+            pump.stop();
+            //flowSensor.resetTotalFlow();
+            remoteCom.sendData('W', COM_ID_STATUS, "stop");
+            break;
+        }
+        break;
+    }
+  }
+
+  return hasActivity;
+}

@@ -1,0 +1,23 @@
+{
+    "modelName": "Beutel 1500 ml",
+	"tankType": 0,
+    "menge": 1500,
+    "pumpPwr": 75,
+    "pressureDropHoseBreak": 0,
+    "fuelingLast": 0,
+    "fuelingCount": 0,
+    "fuelingTotal": 0,
+    "maxRefuelTime": 240,
+    "maxDefuelTime": 240,
+    "backFuelTime": 3,
+    "airRemovalTime": 15,
+    "pumpStopEmptyDelay": 0,
+    "messurementDelay": 5,
+    "maxRefuelMl": 1500,
+    "maxDefuelMl": 1500,
+    "maxPressure": 400,
+    "pumpStopPressureDiff": 0,
+    "pumpStopPressureEmpty": 185,
+    "hopperPressure": 400,
+    "pumpStopHopperPressureDiff": 0
+}

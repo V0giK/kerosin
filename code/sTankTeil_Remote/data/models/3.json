@@ -1,0 +1,25 @@
+{
+    "modelName": "DIY",
+	"tankType": 1,
+    "menge": 800,
+    "pumpPwr": 82,
+    "pressureDropHoseBreak": 0,
+    "fuelingLast": 0,
+    "fuelingCount": 0,
+    "fuelingTotal": 0,
+
+    "maxRefuelTime": 240,
+    "maxDefuelTime": 240,
+    "backFuelTime": 3,
+    "airRemovalTime": 15,
+    "pumpStopEmptyDelay": 5,
+    "messurementDelay": 5,
+
+    "maxRefuelMl": 500,
+    "maxDefuelMl": 500,
+    "maxPressure": 500,
+    "pumpStopPressureDiff": 0,
+    "pumpStopPressureEmpty": 30,
+    "hopperPressure": 500,
+    "pumpStopHopperPressureDiff": 0
+}

@@ -1,0 +1,12 @@
+{
+    "owner" : "I#m the BOSS",
+    "lastModel" : 0,
+    "beep" : 1,
+    "flowTicks" : 5315,
+    "pressureAvg" : 6,
+    "akkuMinV" : 105,
+    "akkuFactor" : 1,
+    "sysPowerOffTime" : 180,
+    "pumpPwrManu" : 81,
+    "pumpPwrCalib" : 81
+}

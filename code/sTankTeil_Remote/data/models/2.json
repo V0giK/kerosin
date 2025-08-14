@@ -1,0 +1,25 @@
+{
+    "modelName": "1 Tank - 300ml",
+	"tankType": 1,
+    "menge": 0,
+    "pumpPwr": 82,
+    "pressureDropHoseBreak": 0,
+    "fuelingLast": 0,
+    "fuelingCount": 0,
+    "fuelingTotal": 998909001,
+
+    "maxRefuelTime": 240,
+    "maxDefuelTime": 240,
+    "backFuelTime": 3,
+    "airRemovalTime": 0,
+    "pumpStopEmptyDelay": 5,
+    "messurementDelay": 6,
+
+    "maxRefuelMl": 300,
+    "maxDefuelMl": 300,
+    "maxPressure": 1000,
+    "pumpStopPressureDiff": 18,
+    "pumpStopPressureEmpty": 30,
+    "hopperPressure": 400,
+    "pumpStopHopperPressureDiff": 18
+}

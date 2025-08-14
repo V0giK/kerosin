@@ -1,0 +1,25 @@
+{
+    "modelName": "New Model ",
+	"tankType": 0,
+    "menge": 800,
+    "pumpPwr": 81,
+    "pressureDropHoseBreak": 0,
+    "fuelingLast": 0,
+    "fuelingCount": 0,
+    "fuelingTotal": 0,
+
+    "maxRefuelTime": 240,
+    "maxDefuelTime": 240,
+    "backFuelTime": 6,
+    "airRemovalTime": 15,
+    "pumpStopEmptyDelay": 5,
+    "messurementDelay": 5,
+
+    "maxRefuelMl": 500,
+    "maxDefuelMl": 500,
+    "maxPressure": 350,
+    "pumpStopPressureDiff": 19,
+    "pumpStopPressureEmpty": 187,
+    "hopperPressure": 400,
+    "pumpStopHopperPressureDiff": 19
+}
