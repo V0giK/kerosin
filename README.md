@@ -5,3 +5,5 @@ Kerosin - rc jet refueling system
 ![](pump_proto.jpg)
 ![](loeten.jpg)
 ![](pump_aufbau.jpg)
+
+während des bastelns ... https://youtube.com/shorts/paOjxJlpqOs
