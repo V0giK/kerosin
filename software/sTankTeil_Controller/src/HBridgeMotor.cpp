@@ -20,7 +20,11 @@
 
 #define MIN_PWR 40
 
-// Konstruktor
+/**
+ * Konstruktor für den HBridgeMotor
+ * @param pin1 Pin 1 des Motors
+ * @param pin2 Pin 2 des Motors
+ */
 HBridgeMotor::HBridgeMotor(int pin1, int pin2) {
     this->pin1 = pin1;
     this->pin2 = pin2;
@@ -31,13 +35,19 @@ HBridgeMotor::HBridgeMotor(int pin1, int pin2) {
     pinMode(pin2, OUTPUT);
 }
 
-// Geschwindigkeit setzen (ohne Starten)
+/**
+ * Setzt die Geschwindigkeit des Motors (ohne Starten)
+ * @param percent Der gewünschte Geschwindigkeitswert in Prozent (0-100)
+ */
 void HBridgeMotor::setSpeed(int percent) {
     percent = constrain(percent, 0, 100);  // Prozentwert auf 0-100 begrenzen
     currentSpeed = map(percent, 0, 100, 0, 255);  // Prozent in PWM-Wert umwandeln
 }
 
-// Motor vorwärts starten mit Sanftanlauf
+/**
+ * Startet den Motor vorwärts mit Sanftanlauf
+ * @param rampTime Die Zeit, die für den Sanftanlauf benötigt wird
+ */
 void HBridgeMotor::startForward(int rampTime) {
     int initialSpeed = 0;
     for (int speed = initialSpeed; speed <= currentSpeed; speed++) {
@@ -49,7 +59,10 @@ void HBridgeMotor::startForward(int rampTime) {
     isRunning = true;
 }
 
-// Motor rückwärts starten mit Sanftanlauf
+/**
+ * Startet den Motor rückwärts mit Sanftanlauf
+ * @param rampTime Die Zeit, die für den Sanftanlauf benötigt wird
+ */
 void HBridgeMotor::startBackward(int rampTime) {
     int initialSpeed = 0;
     for (int speed = initialSpeed; speed <= currentSpeed; speed++) {
@@ -61,7 +74,11 @@ void HBridgeMotor::startBackward(int rampTime) {
     isRunning = true;
 }
 
-// Sanftanlauf für Vorwärtsbewegung
+/**
+ * Startet den Motor vorwärts mit Sanftanlauf
+ * @param targetPercent Der Zielwert für die Geschwindigkeit in Prozent (0-100)
+ * @param rampTime Die Zeit, die für den Sanftanlauf benötigt wird
+ */
 void HBridgeMotor::forwardRamp(int targetPercent, int rampTime) {
     targetPercent = constrain(targetPercent, MIN_PWR, 100);  // Zielprozentwert auf 35-100 begrenzen
     int targetSpeed = map(targetPercent, 0, 100, 0, 255);  // Zielprozent in PWM-Wert umwandeln
@@ -79,7 +96,11 @@ void HBridgeMotor::forwardRamp(int targetPercent, int rampTime) {
     isRunning = true;
 }
 
-// Sanftanlauf für Rückwärtsbewegung
+/**
+ * Startet den Motor rückwärts mit Sanftanlauf
+ * @param targetPercent Der Zielwert für die Geschwindigkeit in Prozent (0-100)
+ * @param rampTime Die Zeit, die für den Sanftanlauf benötigt wird
+ */
 void HBridgeMotor::backwardRamp(int targetPercent, int rampTime) {
     targetPercent = constrain(targetPercent, MIN_PWR, 100);  // Zielprozentwert auf 35-100 begrenzen
     int targetSpeed = map(targetPercent, 0, 100, 0, 255);  // Zielprozent in PWM-Wert umwandeln
@@ -97,7 +118,10 @@ void HBridgeMotor::backwardRamp(int targetPercent, int rampTime) {
     isRunning = true;
 }
 
-// Geschwindigkeit während der Bewegung anpassen
+/**
+ * Passt die Geschwindigkeit des Motors während der Bewegung an
+ * @param percent Der gewünschte Geschwindigkeitswert in Prozent (0-100)
+ */
 void HBridgeMotor::adjustSpeed(int percent) {
     percent = constrain(percent, MIN_PWR, 100);  // Prozentwert auf 0-100 begrenzen
     int newSpeed = map(percent, 0, 100, 0, 255);  // Prozent in PWM-Wert umwandeln
@@ -113,7 +137,10 @@ void HBridgeMotor::adjustSpeed(int percent) {
     currentSpeed = newSpeed;
 }
 
-// Motor vorwärts laufen lassen (Wert in % übergeben)
+/**
+ * Startet den Motor vorwärts mit der angegebenen Geschwindigkeit
+ * @param percent Der gewünschte Geschwindigkeitswert in Prozent (0-100)
+ */
 void HBridgeMotor::forward(int percent) {
     percent = constrain(percent, MIN_PWR, 100);  // Prozentwert auf 0-100 begrenzen
     int speed = map(percent, 0, 100, 0, 255);  // Prozent in PWM-Wert umwandeln
@@ -124,7 +151,10 @@ void HBridgeMotor::forward(int percent) {
     isRunning = true;
 }
 
-// Motor rückwärts laufen lassen (Wert in % übergeben)
+/**
+ * Startet den Motor rückwärts mit der angegebenen Geschwindigkeit
+ * @param percent Der gewünschte Geschwindigkeitswert in Prozent (0-100)
+ */
 void HBridgeMotor::backward(int percent) {
     percent = constrain(percent, MIN_PWR, 100);  // Prozentwert auf 0-100 begrenzen
     int speed = map(percent, 0, 100, 0, 255);  // Prozent in PWM-Wert umwandeln
@@ -135,7 +165,9 @@ void HBridgeMotor::backward(int percent) {
     isRunning = true;
 }
 
-// Motor anhalten (freilaufend)
+/**
+ * Motor anhalten (freilaufend)
+ */
 void HBridgeMotor::stop() {
     digitalWrite(pin1, LOW);  // LOW
     digitalWrite(pin2, LOW);  // LOW
@@ -143,7 +175,9 @@ void HBridgeMotor::stop() {
     isRunning = false;
 }
 
-// Motor bremsen
+/**
+ *  Motor bremsen 
+ */
 void HBridgeMotor::brake() {
     digitalWrite(pin1, HIGH);  // HIGH
     digitalWrite(pin2, HIGH);  // HIGH
@@ -151,6 +185,10 @@ void HBridgeMotor::brake() {
     isRunning = false;
 }
 
+/**
+ * Überprüft, ob der Motor läuft
+ * @return true, wenn der Motor läuft, andernfalls false
+ */
 bool HBridgeMotor::isOn() {
     return isRunning;
 }

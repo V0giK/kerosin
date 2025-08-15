@@ -20,7 +20,11 @@
 // Statische Instanz initialisieren
 FlowSensor* FlowSensor::instance = nullptr;
 
-// Konstruktor
+/**
+ * Konstruktor für den Durchflusssensor
+ * @param sensorPin Der Pin, an dem der Sensor angeschlossen ist
+ * @param calibrate Der Kalibrierungsfaktor für den Sensor
+ */
 FlowSensor::FlowSensor(uint8_t sensorPin, uint16_t calibrate) {
     pin = sensorPin;
     calibrationFactor = calibrate; // Standard 450 Pulse/Liter
@@ -37,7 +41,9 @@ void FlowSensor::pulseISR() {
     }
 }
 
-// Initialisierung
+/**
+ * Initialisiert den Durchflusssensor
+ */
 void FlowSensor::begin() {
     instance = this; // Instanz speichern
     //pinMode(pin, INPUT_PULLUP); // Pin als Input setzen
@@ -45,27 +51,40 @@ void FlowSensor::begin() {
     attachInterrupt(digitalPinToInterrupt(pin), pulseISR, RISING); // Interrupt registrieren
 }
 
-// PulseCount zurücksetzen
+/**
+ * Setzt den PulseCount zurück
+ */
 void FlowSensor::resetPulses() {
     pulses = 0;
 }
 
-// PulseCount abfragen
+/**
+ * Gibt die aktuelle Anzahl der Pulse zurück
+ * @return Die Anzahl der Pulse
+ */
 unsigned long FlowSensor::getPulses() {
     return pulses;
 }
 
-// Kalibrierungsfaktor setzen
+/**
+ * Setzt den Kalibrierungsfaktor für den Durchflusssensor
+ * @param calibrate Der Kalibrierungsfaktor
+ */
 void FlowSensor::setCalibration(uint16_t calibrate) {
     calibrationFactor = calibrate;
 }
 
-// Richtung setzen: Tanken oder Enttanken
+/**
+ * Setzt die Richtung des Durchflusssensors
+ * @param filling true für Tanken, false für Enttanken
+ */
 void FlowSensor::setFilling(bool filling) {
     isFilling = filling;
 }
 
-// Durchflussrate und Menge berechnen (Milliliter)
+/**
+ * Berechnet die Durchflussrate und Menge (Milliliter)
+ */
 void FlowSensor::tick() {
     float milli = (pulses / (float)calibrationFactor) * 1000.0; // Pulse -> Liter -> Milliliter
     if (isFilling) {
@@ -78,21 +97,27 @@ void FlowSensor::tick() {
     unsigned long zeit = millis() - lastFlowTime;
     flowRate = (milli / (float)zeit) * 1000.0;
     lastFlowTime = millis();
-
-    //return flowRate;
 }
 
-// Durchflussrate (Milliliter pro Sekunde)
+/**
+ * Gibt die aktuelle Durchflussrate zurück
+ * @return Die Durchflussrate in Millilitern pro Sekunde
+ */
 float FlowSensor::getFlowRate() {
     return flowRate;
 }
 
-// Gesamt geförderte Milliliter abfragen
+/**
+ * Gibt die gesamte geförderte Menge in Millilitern zurück
+ * @return Die gesamte geförderte Menge in Millilitern
+ */
 long FlowSensor::getTotalMilliliters() {
     return totalMilliliters;
 }
 
-// Gesamtmenge zurücksetzen
+/**
+ * Setzt die gesamte geförderte Menge zurück
+ */
 void FlowSensor::resetTotalFlow() {
     totalMilliliters = 0;
 }

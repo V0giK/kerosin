@@ -89,8 +89,8 @@ public:
 private:
     int button1Pin, button2Pin;
     unsigned long longPressDuration;
-    unsigned long pressStartTime;
     bool bothButtonsPressed = false;
+    unsigned long pressStartTime;
     bool longPressEventTriggered = false;
     bool bActive = false;
     Bounce button1 = Bounce();

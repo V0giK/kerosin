@@ -127,7 +127,8 @@ void setup() {
 
     // Akkuspannung initialisieren
     // TODO: Wert fehlt noch im EEPROM !!!!!!!!!!!!!!!!!
-    voltReader.setCalibrationFactor(2.9183);
+    // voltReader.setCalibrationFactor(2.9183);
+    voltReader.setCalibrationFactor(configManager.getBattKalibrierungsfaktor() / 10000.0);
     voltReader.setThresholds(configManager.getMinimalspannungAkku() / 10.0, 9.5, voltageAlert);
 
     if (DEBUG) Serial.println("System gestartet...");
@@ -295,9 +296,7 @@ void onRead(int16_t id) {
       remoteCom.sendData('W', id, String(configManager.getMinimalspannungAkku()).c_str());
       break;
     case COM_ID_AKKU_CALIB:
-      //remoteCom.sendData('W', id, String(configManager.getConfig().xxxxx));
-      // TODO: Kalibrierungsfaktor fehlt noch in EEPROM
-      remoteCom.sendData('W', id, "987");
+      remoteCom.sendData('W', id, String(configManager.getBattKalibrierungsfaktor()).c_str());
       break;
     case COM_ID_BEEP:
       remoteCom.sendData('W', id, String(configManager.getSignaltonOn()).c_str());

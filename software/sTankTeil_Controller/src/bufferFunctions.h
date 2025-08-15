@@ -33,3 +33,6 @@ extern CircularBuffer<recData, 15> fifo_input_buffer;
 // Empfangspuffer verarbeiten
 recData getRecDataObj(int16_t id, String value);
 bool buffer_tick();
+
+void handlePumpControl(int iVal);
+void handleModelCommand(int id, int iVal, const String& value);

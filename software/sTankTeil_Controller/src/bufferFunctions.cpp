@@ -55,9 +55,15 @@ bool buffer_tick() {
         configManager.setMinimalspannungAkku(iVal);
         break;
       case COM_ID_AKKU_CALIB:
-        // TODO: Kalibrierungsfaktor fehlt noch in EEPROM
-        // configManager.getConfig().kalibFactorSpannung = iVal;
+        configManager.setBattKalibrierungsfaktor(iVal);
         break;
+      case COM_ID_AKKU_VOLT: {
+        int cur = configManager.getBattKalibrierungsfaktor();
+        int volt = voltReader.getLastVoltage() * 100;
+        configManager.setBattKalibrierungsfaktor((iVal / volt) * cur);
+        voltReader.setCalibrationFactor(configManager.getBattKalibrierungsfaktor() / 10000.0);
+        break;
+      }
       case COM_ID_BEEP:
         configManager.setSignaltonOn(iVal);
         buzzer.setActive(iVal);
@@ -74,68 +80,23 @@ bool buffer_tick() {
     
       // ModellDaten
       case COM_ID_TANKTYPE:
-        model.setTankType(iVal);
-        break;
       case COM_ID_PUMP_PWR:
-        model.setPumpPwr(iVal);
-        if(pump.isOn()) {
-          pump.adjustSpeed(iVal);
-        // } else {
-        //   pump.setSpeed(iVal);
-        }
-        break;
       case COM_ID_PRESSURE_DROP_HOSE_BREAK:
-        model.setPressureDropHoseBreak(iVal);
-        break;
       case COM_ID_MAX_REFUEL_TIME:
-        model.setMaxRefuelTime(iVal);
-        break;
       case COM_ID_MAX_DEFUEL_TIME:
-        model.setMaxDefuelTime(iVal);
-        break;
       case COM_ID_BACK_FUEL_TIME:
-        model.setBackFuelTime(iVal);
-        break;
       case COM_ID_AIR_REMOVAL_TIME:
-        model.setAirRemovalTime(iVal);
-        break;
       case COM_ID_PUMP_STOP_EMPTY_DELAY:
-        model.setPumpStopEmptyDelay(iVal);
-        break;
       case COM_ID_MESSUREMENT_DELAY:
-        model.setMessurementDelay(iVal);
-        break;
       case COM_ID_MAX_REFUEL_ML:
-        model.setMaxRefuelMl(iVal);
-        break;
       case COM_ID_MAX_DEFUEL_ML:
-        model.setMaxDefuelMl(iVal);
-        break;
       case COM_ID_MAX_PRESSURE:
-        model.setMaxPressure(iVal);
-        break;
       case COM_ID_PUMP_STOP_PRESSURE_DIFF:
-        model.setPumpStopPressureDiff(iVal);
-        break;
       case COM_ID_PUMP_STOP_PRESSURE_EMPTY:
-        model.setPumpStopPressureEmpty(iVal);
-        break;
       case COM_ID_HOPPER_PRESSURE:
-        model.setHopperPressure(iVal);
-        break;
       case COM_ID_PUMP_STOP_HOPPER_PRESSURE_DIFF:
-        model.setPumpStopHopperPressureDiff(iVal);
-        break;
       case COM_ID_SAVE_MODEL_EEPROM:
-        if(iVal == 5) {
-          if(pumpMode == MODE_MANUELL) {
-            model.clearCRCeeprom(EEPROM_ADR_MODEL);
-          } else {
-            model.saveToEEPROM(EEPROM_ADR_MODEL);
-          }
-          buzzer.playPositiveTone();
-        }
-        
+        handleModelCommand(dta.id, iVal, dta.value);
         break;
 
       // Pumpe
@@ -170,50 +131,121 @@ bool buffer_tick() {
         }
         break;
       case COM_ID_PUMP_CONTROL:
-        pump.stop();
-        delay(100);
-        switch(iVal) {
-          case CTR_TANKEN:
-            pressureSensor.calibSensor();
-            flowSensor.resetTotalFlow();
-            if(pumpMode == MODE_AUTO) {
-              setTankSequence((uint8_t) iVal, (uint8_t) model.getTankType());
-              startTankSequence();
-            } else {
-              if(bRemoteConnected) {
-                pump.forwardRamp(model.getPumpPwr());
-                remoteCom.sendData('W', COM_ID_STATUS, "tanken");
-              } else {
-                pump.forwardRamp(configManager.getManuellePumpenleistung());
-              }
-            }
-            break;
-          case CTR_ENTTANKEN:
-            pressureSensor.calibSensor();
-            flowSensor.resetTotalFlow();
-            if(pumpMode == MODE_AUTO) {
-              setTankSequence((uint8_t) iVal, (uint8_t) model.getTankType());
-              startTankSequence();
-            } else {
-              if(bRemoteConnected) {
-                pump.backwardRamp(model.getPumpPwr());
-                remoteCom.sendData('W', COM_ID_STATUS, "enttanken");
-              } else {
-                pump.backwardRamp(configManager.getManuellePumpenleistung());
-              }
-            }
-            break;
-          case CTR_STOP:
-          default:
-            stopTankSequence();
-            pump.stop();
-            //flowSensor.resetTotalFlow();
-            remoteCom.sendData('W', COM_ID_STATUS, "stop");
-            break;
-        }
+        handlePumpControl(iVal);
         break;
     }
   }
 
   return hasActivity;
+}
+
+void handlePumpControl(int iVal) {
+  pump.stop();
+  delay(100);
+  switch(iVal) {
+    case CTR_TANKEN:
+      pressureSensor.calibSensor();
+      flowSensor.resetTotalFlow();
+      if(pumpMode == MODE_AUTO) {
+        setTankSequence((uint8_t) iVal, (uint8_t) model.getTankType());
+        startTankSequence();
+      } else {
+        if(bRemoteConnected) {
+          pump.forwardRamp(model.getPumpPwr());
+          remoteCom.sendData('W', COM_ID_STATUS, "tanken");
+        } else {
+          pump.forwardRamp(configManager.getManuellePumpenleistung());
+        }
+      }
+      break;
+    case CTR_ENTTANKEN:
+      pressureSensor.calibSensor();
+      flowSensor.resetTotalFlow();
+      if(pumpMode == MODE_AUTO) {
+        setTankSequence((uint8_t) iVal, (uint8_t) model.getTankType());
+        startTankSequence();
+      } else {
+        if(bRemoteConnected) {
+          pump.backwardRamp(model.getPumpPwr());
+          remoteCom.sendData('W', COM_ID_STATUS, "enttanken");
+        } else {
+          pump.backwardRamp(configManager.getManuellePumpenleistung());
+        }
+      }
+      break;
+    case CTR_STOP:
+    default:
+      stopTankSequence();
+      pump.stop();
+      remoteCom.sendData('W', COM_ID_STATUS, "stop");
+      break;
+  }
+}
+
+// ModellDaten
+void handleModelCommand(int id, int iVal, const String& value){
+  switch (id)
+  {
+    case COM_ID_TANKTYPE:
+      model.setTankType(iVal);
+      break;
+    case COM_ID_PUMP_PWR:
+      model.setPumpPwr(iVal);
+      if(pump.isOn()) {
+        pump.adjustSpeed(iVal);
+      }
+      break;
+    case COM_ID_PRESSURE_DROP_HOSE_BREAK:
+      model.setPressureDropHoseBreak(iVal);
+      break;
+    case COM_ID_MAX_REFUEL_TIME:
+      model.setMaxRefuelTime(iVal);
+      break;
+    case COM_ID_MAX_DEFUEL_TIME:
+      model.setMaxDefuelTime(iVal);
+      break;
+    case COM_ID_BACK_FUEL_TIME:
+      model.setBackFuelTime(iVal);
+      break;
+    case COM_ID_AIR_REMOVAL_TIME:
+      model.setAirRemovalTime(iVal);
+      break;
+    case COM_ID_PUMP_STOP_EMPTY_DELAY:
+      model.setPumpStopEmptyDelay(iVal);
+      break;
+    case COM_ID_MESSUREMENT_DELAY:
+      model.setMessurementDelay(iVal);
+      break;
+    case COM_ID_MAX_REFUEL_ML:
+      model.setMaxRefuelMl(iVal);
+      break;
+    case COM_ID_MAX_DEFUEL_ML:
+      model.setMaxDefuelMl(iVal);
+      break;
+    case COM_ID_MAX_PRESSURE:
+      model.setMaxPressure(iVal);
+      break;
+    case COM_ID_PUMP_STOP_PRESSURE_DIFF:
+      model.setPumpStopPressureDiff(iVal);
+      break;
+    case COM_ID_PUMP_STOP_PRESSURE_EMPTY:
+      model.setPumpStopPressureEmpty(iVal);
+      break;
+    case COM_ID_HOPPER_PRESSURE:
+      model.setHopperPressure(iVal);
+      break;
+    case COM_ID_PUMP_STOP_HOPPER_PRESSURE_DIFF:
+      model.setPumpStopHopperPressureDiff(iVal);
+      break;
+    case COM_ID_SAVE_MODEL_EEPROM:
+      if(iVal == 5) {
+        if(pumpMode == MODE_MANUELL) {
+          model.clearCRCeeprom(EEPROM_ADR_MODEL);
+        } else {
+          model.saveToEEPROM(EEPROM_ADR_MODEL);
+        }
+        buzzer.playPositiveTone();
+      }
+      break;
+  }
 }

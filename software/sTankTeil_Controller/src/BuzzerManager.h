@@ -19,11 +19,11 @@
 class BuzzerManager {
 private:
     const int buzzerPin;
-    bool bActive;
-    unsigned long lastActivityTime;
     unsigned long reminderInterval;
     const unsigned long reminderRepeatInterval; // Intervall für wiederholten Erinnerungston
+    unsigned long lastActivityTime;
     unsigned long lastReminderTime; // Zeit des letzten Erinnerungstons
+    bool bActive;
 
 public:
     // Konstruktor
