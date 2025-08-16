@@ -202,10 +202,11 @@ public:
         }
 
         String json = toJSON();
-        file.print(json);
+        size_t written = file.print(json);
+        file.flush(); // Sicherstellen, dass alle Daten geschrieben werden
         file.close();
         Serial.println("Daten in LittleFS gespeichert: " + json);
-        return true;
+        return  written > 0;
     }
 
     // Aus LittleFS laden
