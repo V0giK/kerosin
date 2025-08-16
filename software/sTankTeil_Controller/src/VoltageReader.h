@@ -62,15 +62,6 @@ public:
             lastReadTime = millis();
             total += analogRead(analogPin);
             readingsCount++;
-            Serial.print("Raw ADC: "); 
-            Serial.print(" | Voltage: ");
-            Serial.print(analogRead(analogPin));
-            Serial.print(" | Reference Voltage: ");
-            Serial.print(referenceVoltage);
-            Serial.print(" | Calibration Factor: ");
-            Serial.print(calibrationFactor);
-            Serial.print(" | Calibrated Voltage: ");
-            Serial.println((analogRead(analogPin) / 1023.0) * referenceVoltage * calibrationFactor);
            }
 
         if (readingsCount >= numReadings) {
