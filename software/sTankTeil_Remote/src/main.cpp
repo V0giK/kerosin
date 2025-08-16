@@ -29,8 +29,20 @@
 #include "uartCommunication.h"
 #include "ModelParameters.h"
 #include "snakeGame.h"
+#include <esp_task_wdt.h>
 //#include "tetris.h"
 
+
+// Konstanten für optimale Timing-Intervalle
+const uint32_t UART_CHECK_INTERVAL = 10;     // 100Hz für UART
+const uint32_t UI_UPDATE_INTERVAL = 20;      // 50Hz für Display
+const uint32_t STATUS_CHECK_INTERVAL = 1000; // 1Hz für System Status
+const uint32_t WDT_TIMEOUT = 5;              // 5s Watchdog
+
+// Timing Variablen
+static uint32_t lastUartCheck = 0;
+static uint32_t lastUiUpdate = 0;
+static uint32_t lastStatusCheck = 0;
 
 // Debug-Ausgabe steuern
 const bool DEBUG = false;
@@ -208,6 +220,10 @@ void lvglSetup() {
 
 void setup() {
 
+    // WiFi/BT deaktivieren wenn nicht benötigt
+    // WiFi.mode(WIFI_OFF);
+    // btStop();
+
     Serial.begin(115200);
     uartCom.begin(9600); // 19200
 
@@ -331,6 +347,10 @@ void setup() {
     } else {
       g_go2home = true;
     }
+
+    // Watchdog Setup
+    esp_task_wdt_init(WDT_TIMEOUT, true);
+    esp_task_wdt_add(NULL);
 }
 
 // Initialwerte setzen
@@ -392,17 +412,54 @@ bool searchAndLoadController() {
 
 // Hauptprogramm Loop
 void loop() {
-    lv_task_handler();
-    ui_tick();
-    uartCom.tick(); // Empfangene Daten verarbeiten
+    uint32_t currentMillis = millis();
 
-    handleScreenFlags();
-    handlePumpControl();
-    handleManualPump();
-    handleButtonClick();
-    handleSettingsPage();
-    handleKeyboard();
-    handleNumpad();
+    // 1. UART Kommunikation (höchste Priorität - 100Hz)
+    if (currentMillis - lastUartCheck >= UART_CHECK_INTERVAL) {
+        lastUartCheck = currentMillis;
+        uartCom.tick();  // Verarbeite UART-Daten
+        //processReceivedData();  // Verarbeite empfangene Messdaten
+    }
+
+    // 2. UI Updates (50Hz)
+    if (currentMillis - lastUiUpdate >= UI_UPDATE_INTERVAL) {
+        lastUiUpdate = currentMillis;
+        lv_timer_handler();     // LVGL Timer Handler
+        lv_task_handler();
+        ui_tick();
+
+        //updateUIElements();     // Update Display Elements
+        handleScreenFlags();
+        handlePumpControl();
+        handleManualPump();
+        handleButtonClick();
+        handleSettingsPage();
+        handleKeyboard();
+        handleNumpad();
+      }
+
+    // 3. System Status (1Hz)
+    if (currentMillis - lastStatusCheck >= STATUS_CHECK_INTERVAL) {
+        lastStatusCheck = currentMillis;
+        //checkSystemStatus();    // Prüfe System Parameter
+        esp_task_wdt_reset();  // Reset Watchdog
+    }
+
+    // Yield für andere Tasks
+    vTaskDelay(1);
+    
+    /////////////////////////////////////////////////////
+    // lv_task_handler();
+    // ui_tick();
+    // uartCom.tick(); // Empfangene Daten verarbeiten
+
+    // handleScreenFlags();
+    // handlePumpControl();
+    // handleManualPump();
+    // handleButtonClick();
+    // handleSettingsPage();
+    // handleKeyboard();
+    // handleNumpad();
 }
 
 // Bildschirm-Flags verarbeiten
