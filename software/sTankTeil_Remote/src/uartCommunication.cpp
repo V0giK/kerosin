@@ -233,8 +233,6 @@ void UartCommunication::processReceivedData(const String &data) {
 
     // CRC prüfen
     String checkData = action + ":" + id + ":" + value;
-    // char checkData[128]; // Puffer
-    // snprintf(checkData, sizeof(checkData), "%s:%d:%s", action, id, value);
     uint16_t calculatedCRC = calculateCRC(checkData.c_str());
     if (calculatedCRC != receivedCRC) {
         debugPrint("Fehler: CRC ungültig!");
