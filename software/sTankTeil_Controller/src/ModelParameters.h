@@ -410,7 +410,7 @@ public:
         uint16_t checksum;
         EEPROM.get(address, checksum); address += sizeof(checksum);
 
-        return (calcCkecksum() == checksum);
+        return (calcCkecksum() == checksum && checksum != 0);
     }
 
     void clearCRCeeprom(int startAddress){
