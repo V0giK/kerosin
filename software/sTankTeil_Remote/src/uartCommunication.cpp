@@ -22,7 +22,8 @@
 
 // Konstruktor
 UartCommunication::UartCommunication(int rxPin, int txPin, bool debug, int uartNumber)
-    : rxPin(rxPin), txPin(txPin), debugEnabled(debug), uart(uartNumber), currentBaudRate(9600), waitingForAck(false), ackStartTime(0), isNACK(false), lastResponseID(-1) {}
+    : rxPin(rxPin), txPin(txPin), debugEnabled(debug), uart(uartNumber), 
+      currentBaudRate(0), rxIndex(0) {}
 
 // UART initialisieren
 void UartCommunication::begin(long baudRate) {
@@ -30,7 +31,7 @@ void UartCommunication::begin(long baudRate) {
     uart.begin(baudRate, SERIAL_8N1, rxPin, txPin);
     // uart.setTimeout(10000);  // Timeout auf 10000 ms einstellen
     delay(100);
-    debugPrint("UART gestartet.");
+    debugPrint("UART started at " + String(baudRate) + " baud");
 }
 
 // UART Schnittstelle zurücksetzen
@@ -40,9 +41,15 @@ void UartCommunication::reset() {
     uart.end();
     delay(100);
     uart.begin(currentBaudRate, SERIAL_8N1, rxPin, txPin); // Standard-Baudrate wiederherstellen
-    // uart.setTimeout(10000);  // Timeout auf 10000 ms einstellen
     delay(100);
-    debugPrint("UART Schnittstelle wurde zurückgesetzt.");
+    
+    // Reset status
+    rxIndex = 0;
+    waitingForAck = false;
+    isNACK = false;
+    lastResponseID = -1;
+    
+    debugPrint("UART reset completed");
 }
 
 // CRC-16 Berechnung
@@ -72,27 +79,26 @@ bool UartCommunication::sendData(char rw, int16_t id, const String &data, bool w
     if (rw != 'R') rw = 'W';
     setacki(id, waitForAck); // ACK Bit setzen
 
-    //String message = "S" + String(rw) + ":" + String(id) + ":" + data;
-    char message[130]; // Puffer
-    // snprintf(message, sizeof(message), "S%c:%d:%s", rw, id, data);
-    snprintf(message, sizeof(message), "S%c:%d:%s", rw, id, data);
+    char message[RX_BUFFER_SIZE]; // Puffer
+    snprintf(message, sizeof(message), "S%c:%d:%s", rw, id, data.c_str());
     uint16_t crc = calculateCRC(message);
-    //String packet = message + ":" + String(crc);
-    char packet[130]; // Puffer
-    snprintf(packet, sizeof(packet), "%s:%u", message, crc);
 
+    char packet[RX_BUFFER_SIZE]; // Puffer
+    snprintf(packet, sizeof(packet), "%s:%u\n", message, crc);
 
     int retries = 0;
     while (retries <= maxRetries) {
-        uart.println(packet);
+        uart.print(packet);
         debugPrint("Gesendet: " + String(packet) + " (Versuch " + String(retries + 1) + ")");
 
         if (waitForAck) {
             waitingForAck = true;
+            isNACK = false;
             ackStartTime = millis();
 
             // Warte auf ACK mit Timeout
-            while (millis() - ackStartTime < ackTimeout) {
+            while (millis() - ackStartTime < ACK_TIMEOUT) {
+                tick(); // Eingehende Nachrichten prüfen
                 if (!waitingForAck) {
                     debugPrint("ACK erfolgreich erhalten.");
                     return true; // Erfolg
@@ -101,47 +107,101 @@ bool UartCommunication::sendData(char rw, int16_t id, const String &data, bool w
                     debugPrint("NACK erfolgreich erhalten.");
                     break;
                 }
-                tick(); // Eingehende Nachrichten prüfen
+                yield();
             }
 
             debugPrint("Timeout oder NACK: ACK nicht erhalten.");
-            isNACK = false;
-            waitingForAck = false;
         } else {
             return true; // Erfolg, wenn kein ACK benötigt wird
         }
 
         retries++;
+        if (retries <= maxRetries) {
+            delay(50 * retries);  // Exponential backoff
+        }
     }
 
-    debugPrint("Fehler: Max. Wiederholungen erreicht. Keine ACK erhalten.");
+    debugPrint("Send failed after " + String(maxRetries) + " retries");
     return false; // Fehler nach allen Wiederholungen
 }
 
 // Empfangen von Daten verarbeiten
 void UartCommunication::tick() {
     if(currentBaudRate == 0) return;
-    if (uart.available()) {
-        String sVal = uart.readStringUntil('\n');
-        sVal.trim();
-        debugPrint("Empfangen: " + sVal + "-end");
+    
+    // Process incoming messages
+    processIncomingData();
+    
+    // Process queued messages
+    processMessageQueue();
 
-        // ACK prüfen
-        if (waitingForAck && sVal == "ACK") {
-            debugPrint("Empfangsbestätigung (ACK) erhalten!");
-            waitingForAck = false;
-            return;
+}
+
+// Verarbeite eingehende Daten
+void UartCommunication::processIncomingData() {
+    while (uart.available()) {
+        char c = uart.read();
+        lastMessageTime = millis();
+        connected = true;
+
+        if (c == '\n') {
+            rxBuffer[rxIndex] = '\0';
+            String message = String(rxBuffer);
+            message.trim();
+            
+            if (message.length() > 0) {
+                Message msg = {
+                    .data = message,
+                    .timestamp = millis(),
+                    .id = -1,  // Will be parsed later
+                    .needsAck = false
+                };
+                
+                if (!messageQueue.isFull()) {
+                    messageQueue.push(msg);
+                    debugPrint("Message queued: " + message);
+                } else {
+                    debugPrint("Message queue full, dropping: " + message);
+                }
+            }
+            rxIndex = 0;
+        } else if (rxIndex < RX_BUFFER_SIZE - 1) {
+            rxBuffer[rxIndex++] = c;
         }
-        // NACK prüfen
-        if (waitingForAck && !isNACK && sVal == "NACK") {
-            debugPrint("NACK erhalten!");
-            isNACK = true;
-            return;
+    }
+}
+
+// Verarbeite die Nachrichtenwarteschlange
+void UartCommunication::processMessageQueue() {
+    while (!messageQueue.isEmpty()) {
+        Message msg = messageQueue.first();
+        
+        // Handle ACK/NACK messages immediately
+        if (msg.data == "ACK" && waitingForAck) {
+            waitingForAck = false;
+            messageQueue.shift();
+            debugPrint("ACK processed from queue");
+            continue;
         }
         
-        if (sVal.startsWith("S")) {
-            processReceivedData(sVal);
+        if (msg.data == "NACK" && waitingForAck) {
+            isNACK = true;
+            messageQueue.shift();
+            debugPrint("NACK processed from queue");
+            continue;
         }
+
+        // Process normal messages
+        if (msg.data.startsWith("S")) {
+            processReceivedData(msg.data);
+        }
+        
+        messageQueue.shift();
+    }
+
+    // Check for timeouts
+    if (waitingForAck && (millis() - ackStartTime > ACK_TIMEOUT)) {
+        handleTimeout();
     }
 }
 
@@ -299,4 +359,39 @@ void UartCommunication::enterDeepSleepForeverESP32() {
 
     // Deep Sleep starten (er wacht nur durch einen Reset auf)
     esp_deep_sleep_start();
+}
+
+// Timeout-Handling
+void UartCommunication::handleTimeout() {
+    debugPrint("Timeout occurred - resetting connection state");
+    
+    // Reset connection flags
+    waitingForAck = false;
+    isNACK = false;
+    connected = false;
+    
+    // Clear buffers
+    rxIndex = 0;
+    while (!messageQueue.isEmpty()) {
+        messageQueue.shift();
+    }
+    while (uart.available()) {
+        uart.read();
+    }
+    
+    // Reset response tracking
+    lastResponseID = -1;
+    lastReceivedResponse = "";
+    
+    // Optional: Notify UI about connection loss
+    set_var_s_status("Connection timeout");
+    
+    // Optional: Reset pump if active
+    if (get_var_b_is_pumping()) {
+        set_var_b_is_pumping(false);
+        set_var_b_disable_btn_home(false);
+        set_var_b_disable_btn_settings(false);
+    }
+    
+    debugPrint("Connection state reset completed");
 }
