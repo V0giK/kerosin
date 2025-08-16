@@ -28,7 +28,7 @@ struct SystemConfig {
     uint8_t anzahlMesswerteMittelwert;   // 2-stellig, zb. 6
     int systemabschaltungSekunden;       // 3-stellig, zb. 180 (Sekunden) - 0=keine Abschaltung
     bool signaltonOn;                    // 1-stellig (true/false)
-    int battKalibrierungsfaktor;         // 5-stellig, z.B. 12345 (12.345)
+    int32_t battKalibrierungsfaktor;     // 5-stellig, z.B. 12345 (12.345)
     uint16_t checksum;                   // Prüfsumme für Datenvalidierung
 };
 
@@ -50,7 +50,7 @@ public:
     void setSystemabschaltungSekunden(int value) { config.systemabschaltungSekunden = (value>60||value==0)?value:60; }
     void setSignaltonOn(bool value) { config.signaltonOn = value; }
     void setBattKalibrierungsfaktor(float value) { config.battKalibrierungsfaktor = value * 1000; }
-    void setBattKalibrierungsfaktor(int value) { config.battKalibrierungsfaktor = value; }
+    void setBattKalibrierungsfaktor(int32_t value) { config.battKalibrierungsfaktor = value; }
 
     // Getter-Methoden
     int getManuellePumpenleistung() const { return config.manuellePumpenleistung; }
@@ -59,7 +59,7 @@ public:
     uint8_t getAnzahlMesswerteMittelwert() const { return config.anzahlMesswerteMittelwert; }
     int getSystemabschaltungSekunden() const { return config.systemabschaltungSekunden; }
     bool getSignaltonOn() const { return config.signaltonOn; }
-    int getBattKalibrierungsfaktor() const { return config.battKalibrierungsfaktor; }
+    int32_t getBattKalibrierungsfaktor() const { return config.battKalibrierungsfaktor; }
 
 private:
     SystemConfig config;               // Konfigurationsstruktur

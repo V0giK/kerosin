@@ -70,7 +70,7 @@ void SystemConfigManager::resetToDefaults() {
     config.anzahlMesswerteMittelwert = 6;
     config.systemabschaltungSekunden = 180;
     config.signaltonOn = true;
-    config.battKalibrierungsfaktor = 2.9183f;
+    config.battKalibrierungsfaktor = 30000; // 30000 für 3.0000
     config.checksum = calculateChecksum();
 
     writeConfigToEEPROM();

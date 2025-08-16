@@ -68,12 +68,12 @@ void setup() {
   digitalWrite(PIN_MOTE_12V, LOW);
 
   // {
-  //   Serial.println("Lösche EEPROM...");
-  //   // EEPROM löschen
+    // Serial.println("Lösche EEPROM...");
+    // // EEPROM löschen
     // for (int i = 0; i < EEPROM.length(); i++) {
     //     EEPROM.write(i, 0xFF); // 0xFF entspricht einem leeren Wert
     // }
-  //   Serial.println("EEPROM wurde geleert.");
+    // Serial.println("EEPROM wurde geleert.");
     // return;
   // }
 

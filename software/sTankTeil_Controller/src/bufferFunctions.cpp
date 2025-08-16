@@ -55,10 +55,10 @@ bool buffer_tick() {
         configManager.setMinimalspannungAkku(iVal);
         break;
       case COM_ID_AKKU_CALIB:
-        configManager.setBattKalibrierungsfaktor(iVal);
+        //configManager.setBattKalibrierungsfaktor(iVal);
         break;
       case COM_ID_AKKU_VOLT: {
-        int cur = configManager.getBattKalibrierungsfaktor();
+        int32_t cur = configManager.getBattKalibrierungsfaktor();
         int volt = voltReader.getLastVoltage() * 100;
         configManager.setBattKalibrierungsfaktor((iVal / volt) * cur);
         voltReader.setCalibrationFactor(configManager.getBattKalibrierungsfaktor() / 10000.0);
