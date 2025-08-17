@@ -86,6 +86,18 @@ bool UartCommunication::sendData(char rw, int16_t id, const String &data, bool w
     char packet[RX_BUFFER_SIZE]; // Puffer
     snprintf(packet, sizeof(packet), "%s:%u\n", message, crc);
 
+    // Nachricht in Queue speichern, falls ACK benötigt wird
+    if (waitForAck && !messageQueue.isFull()) {
+        Message msg = {
+            .data = String(message),
+            .timestamp = millis(),
+            .id = id,
+            .needsAck = true
+        };
+        messageQueue.push(msg);
+        debugPrint("Message with ACK required queued: " + String(message));
+    }
+
     int retries = 0;
     while (retries <= maxRetries) {
         uart.print(packet);
@@ -150,16 +162,30 @@ void UartCommunication::processIncomingData() {
             message.trim();
             
             if (message.length() > 0) {
+                // Parse message ID for ACK handling
+                int16_t msgId = -1;
+                bool needsAck = false;
+                
+                if (message.startsWith("S")) {
+                    int firstColon = message.indexOf(':');
+                    int secondColon = message.indexOf(':', firstColon + 1);
+                    
+                    if (firstColon != -1 && secondColon != -1) {
+                        msgId = message.substring(firstColon + 1, secondColon).toInt();
+                        needsAck = isacki(msgId);
+                    }
+                }
+                
                 Message msg = {
                     .data = message,
                     .timestamp = millis(),
-                    .id = -1,  // Will be parsed later
-                    .needsAck = false
+                    .id = msgId,
+                    .needsAck = needsAck
                 };
                 
                 if (!messageQueue.isFull()) {
                     messageQueue.push(msg);
-                    debugPrint("Message queued: " + message);
+                    debugPrint("Message queued: " + message + (needsAck ? " (ACK required)" : ""));
                 } else {
                     debugPrint("Message queue full, dropping: " + message);
                 }
@@ -194,6 +220,11 @@ void UartCommunication::processMessageQueue() {
         // Process normal messages
         if (msg.data.startsWith("S")) {
             processReceivedData(msg.data);
+            
+            // If this message required an ACK, check if it's been processed
+            if (msg.needsAck) {
+                debugPrint("Processed message that required ACK: ID=" + String(msg.id));
+            }
         }
         
         messageQueue.shift();
@@ -239,10 +270,10 @@ void UartCommunication::processReceivedData(const String &data) {
         return;
     }
 
-    // ACK senden
+    // ACK senden - Prüfen ob ACK erwartet wird (isacki)
     if(isacki(id)) {
         uart.println("ACK");
-        debugPrint("ACK gesendet");
+        debugPrint("ACK gesendet für ID: " + String(id));
     }
     clracki(id); // ACK Bit entfernen
 
