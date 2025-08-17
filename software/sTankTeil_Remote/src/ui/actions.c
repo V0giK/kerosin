@@ -50,6 +50,8 @@ volatile bool g_unloadModelSettings = false;
 
 volatile bool bModelButtonLongPressed = false;
 
+volatile bool g_viewCalibVolt = false;
+
 
 void action_go2home(lv_event_t *e) {
     g_go2home = true;
@@ -134,4 +136,8 @@ void action_go2new_model(lv_event_t *e) {
 
 void action_unload_model_settings(lv_event_t *e) {
    g_unloadModelSettings = true;
+}
+
+void action_view_calib_volt(lv_event_t *e) {
+    g_viewCalibVolt = true;
 }

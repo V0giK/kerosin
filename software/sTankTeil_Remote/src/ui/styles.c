@@ -25,10 +25,12 @@ lv_style_t *get_style_label_style_MAIN_DEFAULT() {
 };
 
 void add_style_label_style(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_add_style(obj, get_style_label_style_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
 void remove_style_label_style(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_remove_style(obj, get_style_label_style_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
@@ -55,10 +57,12 @@ lv_style_t *get_style_container_settings_MAIN_DEFAULT() {
 };
 
 void add_style_container_settings(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_add_style(obj, get_style_container_settings_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
 void remove_style_container_settings(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_remove_style(obj, get_style_container_settings_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
@@ -81,10 +85,12 @@ lv_style_t *get_style_textbox_MAIN_DEFAULT() {
 };
 
 void add_style_textbox(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_add_style(obj, get_style_textbox_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
 void remove_style_textbox(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_remove_style(obj, get_style_textbox_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
@@ -107,10 +113,12 @@ lv_style_t *get_style_roller_MAIN_DEFAULT() {
 };
 
 void add_style_roller(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_add_style(obj, get_style_roller_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
 void remove_style_roller(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_remove_style(obj, get_style_roller_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
@@ -137,10 +145,12 @@ lv_style_t *get_style_page_style_MAIN_DEFAULT() {
 };
 
 void add_style_page_style(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_add_style(obj, get_style_page_style_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
 void remove_style_page_style(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_remove_style(obj, get_style_page_style_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
@@ -166,10 +176,12 @@ lv_style_t *get_style_label_model_style_MAIN_DEFAULT() {
 };
 
 void add_style_label_model_style(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_add_style(obj, get_style_label_model_style_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 
 void remove_style_label_model_style(lv_obj_t *obj) {
+    (void)obj;
     lv_obj_remove_style(obj, get_style_label_model_style_MAIN_DEFAULT(), LV_PART_MAIN | LV_STATE_DEFAULT);
 };
 

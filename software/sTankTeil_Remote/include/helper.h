@@ -114,7 +114,8 @@ enum ButtonId {
     BTN_MODEL_SAVE2CONTROLLER = 10,
     BTN_SNAKE_START           = 11,
     BTN_SNAKE_STOP            = 12,
-    BTN_MODEL_TYPE_CHG        = 13
+    BTN_MODEL_TYPE_CHG        = 13,
+    BTN_SYSTEM_SEND_CALIBVOLT = 14
 };
 
 enum TankTypeEnum {

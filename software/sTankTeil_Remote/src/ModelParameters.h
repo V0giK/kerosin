@@ -216,10 +216,27 @@ public:
             return false;
         }
 
+        if (!LittleFS.exists(filename)) {
+            Serial.println("Datei existiert nicht: " + String(filename));
+            return false;
+        }
+
         File file = LittleFS.open(filename, "r");
         if (!file) {
-            Serial.println("Fehler beim Öffnen der Datei zum Lesen!");
+            Serial.println("Fehler beim Öffnen der Datei zum Lesen: " + String(filename));
             return false;
+        }
+
+        // Check file size to avoid buffer overflows
+        size_t fileSize = file.size();
+        if (fileSize == 0) {
+            Serial.println("Datei ist leer: " + String(filename));
+            file.close();
+            return false;
+        }
+        if (fileSize > 1024) {
+            Serial.println("Datei zu groß: " + String(filename) + " (" + String(fileSize) + " bytes)");
+            // Continue anyway but with caution
         }
 
         String json;
@@ -228,8 +245,9 @@ public:
         }
         file.close();
 
+        Serial.println("Daten aus LittleFS geladen (" + String(fileSize) + " bytes): " + json);
+        
         fromJSON(json);
-        Serial.println("Daten aus LittleFS geladen: " + json);
         return true;
     }
 

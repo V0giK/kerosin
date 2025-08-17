@@ -59,8 +59,8 @@ bool buffer_tick() {
         break;
       case COM_ID_AKKU_VOLT: {
         int32_t cur = configManager.getBattKalibrierungsfaktor();
-        int volt = voltReader.getLastVoltage() * 100;
-        configManager.setBattKalibrierungsfaktor((iVal / volt) * cur);
+        float volt = voltReader.getLastVoltage() * 100;
+        configManager.setBattKalibrierungsfaktor((iVal / volt) * (cur * 1.0));
         voltReader.setCalibrationFactor(configManager.getBattKalibrierungsfaktor() / 10000.0);
         break;
       }

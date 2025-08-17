@@ -1,9 +1,7 @@
 {
   "navigation": {
-    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/3",
-    "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/1",
-    "selectedActionObject": "[sTankTeil.eez-project]:/actions/1",
-    "selectedGlobalVariableObject": "[sTankTeil.eez-project]:/variables/globalVariables/69",
+    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/0",
+    "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/6",
     "selectedStyleObject": "[sTankTeil.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[sTankTeil.eez-project]:/bitmaps/0",
     "subnavigationSelectedItems": {
@@ -76,6 +74,7 @@
           {
             "type": "border",
             "selected": 0,
+            "size": 110.5,
             "location": "bottom",
             "children": [
               {
@@ -129,6 +128,7 @@
                   "type": "tabset",
                   "id": "#8d88b5f0-c6b7-4eb6-aa50-9e25083fea7f",
                   "weight": 0.5920112136136907,
+                  "selected": 1,
                   "enableClose": false,
                   "children": [
                     {
@@ -194,46 +194,32 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 61.55352480417755,
-              "selected": 1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
                 {
                   "type": "tab",
-                  "id": "#a1e3fc9e-4bcc-4665-873d-7109352cb0b4",
-                  "name": "Settings",
+                  "id": "#6586cb58-3c12-444a-95d1-4a64b3673ea1",
+                  "name": "calibVolt",
                   "component": "editor",
                   "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/settings",
-                    "subObjectPath": "[sTankTeil.eez-project]:/settings",
-                    "permanent": false
-                  },
-                  "icon": "material:settings"
-                },
-                {
-                  "type": "tab",
-                  "id": "#95900dfc-50aa-427c-b867-068334bf04d2",
-                  "name": "Main",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/userPages/3",
-                    "permanent": false
-                  },
-                  "icon": "svg:page"
-                },
-                {
-                  "type": "tab",
-                  "id": "#cbd1a30d-2ad6-464a-a12d-f478828eee71",
-                  "name": "header",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/userWidgets/1",
+                    "objectPath": "[sTankTeil.eez-project]:/userWidgets/6",
                     "permanent": false
                   },
                   "icon": "svg:user_widget"
+                },
+                {
+                  "type": "tab",
+                  "id": "#45a81659-28ce-456a-b891-56cc438e00ac",
+                  "name": "SettingsSystem",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[sTankTeil.eez-project]:/userPages/0",
+                    "permanent": false
+                  },
+                  "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "row",
@@ -254,7 +240,8 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -1006,9 +993,11 @@
         "0": {
           "0": {},
           "1": {
-            "10": {
+            "10": {},
+            "14": {
               "$selected": true
-            }
+            },
+            "15": {}
           },
           "2": {}
         }
@@ -1038,7 +1027,7 @@
           "x": -400,
           "y": -240
         },
-        "scale": 1.25
+        "scale": 0.75
       },
       "timeline": {
         "isEditorActive": false,
@@ -1108,7 +1097,8 @@
         "0": {
           "0": {},
           "1": {
-            "1": {
+            "1": {},
+            "2": {
               "$selected": true
             }
           }
@@ -1133,9 +1123,8 @@
         "0": {
           "1": {},
           "4": {
-            "0": {
-              "$selected": true
-            }
+            "0": {},
+            "$selected": true
           }
         }
       },
@@ -1158,8 +1147,11 @@
         "0": {
           "0": {},
           "1": {},
-          "2": {
-            "$selected": true
+          "2": {},
+          "4": {
+            "0": {
+              "$selected": true
+            }
           }
         }
       },
@@ -1217,7 +1209,7 @@
           "x": -400,
           "y": -340
         },
-        "scale": 0.8
+        "scale": 0.75
       },
       "timeline": {
         "isEditorActive": false,
@@ -1237,7 +1229,7 @@
           "x": -400,
           "y": -240
         },
-        "scale": 0.8
+        "scale": 0.75
       },
       "timeline": {
         "isEditorActive": false,
@@ -1248,10 +1240,10 @@
     },
     "[sTankTeil.eez-project]:/userWidgets/4[flow-state]": {
       "selection": {
-        "0": {},
-        "1": {
+        "0": {
           "$selected": true
-        }
+        },
+        "1": {}
       },
       "transform": {
         "translate": {
@@ -1286,6 +1278,32 @@
         "secondToPx": 200,
         "scrollLeft": 0
       }
+    },
+    "[sTankTeil.eez-project]:/userWidgets/6[flow-state]": {
+      "selection": {
+        "0": {},
+        "2": {},
+        "3": {},
+        "4": {
+          "0": {
+            "$selected": true
+          }
+        },
+        "5": {}
+      },
+      "transform": {
+        "translate": {
+          "x": -400,
+          "y": -140
+        },
+        "scale": 0.75
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
     }
   },
   "activeOutputSection": 0,
@@ -1301,11 +1319,12 @@
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
   "lvglPart": "MAIN",
-  "lvglState": "DISABLED",
+  "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
     "TEXT",
     "BORDER",
-    "IMAGE"
+    "IMAGE",
+    "POSITION AND SIZE"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,

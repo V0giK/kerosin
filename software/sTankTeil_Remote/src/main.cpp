@@ -86,6 +86,7 @@ extern volatile bool g_go2newModel;
 extern lv_event_t g_go2newModelE;
 extern volatile bool g_unloadModelSettings;
 extern volatile bool bModelButtonLongPressed;
+extern volatile bool g_viewCalibVolt;
 
 // namespace GlobalFlags {
 //   bool g_go2home, g_go2settings, g_go2settingsSystem, g_go2settingsCalibrate, g_go2manuelPump;
@@ -131,6 +132,9 @@ SnakeGame snakeGame;
 // Tetris
 //Tetris tetrisGame;
 
+// Add missing error state flag
+bool inControllerErrorState = false;
+
 // Funktionsprototypen
 void lvglSetup();
 void setInitialValues();
@@ -154,6 +158,16 @@ void deleteModel(lv_obj_t *);
 void btnModelSaveClick();
 bool sendModelDataToController();
 void viewModelParameters(TankTypeEnum tankType);
+
+// New function prototypes for setup improvements
+bool initializeFileSystem();
+void updateDisplay(int iterations);
+void showErrorAndSleep(const char* message);
+void loadConfigWithDefaults();
+void applyConfigToUI();
+void handleControllerError();
+void loadModelsFromStorage();
+void navigateToInitialScreen();
 
 ScreensEnum scrCurScreen = SCREEN_ID_MAIN;
 ScreensEnum scrPrevScreen = SCREEN_ID_MAIN;
@@ -217,140 +231,251 @@ void lvglSetup() {
 
 }
 
+// Setup constants
+const int UI_UPDATE_ITERATIONS = 5;
+const int MODEL_JSON_DOC_SIZE = 1024;  // Increased from 512 to 1024 bytes to handle larger model files
+const int SETUP_DISPLAY_DELAY = 100;  // ms
 
 void setup() {
-
-    // WiFi/BT deaktivieren wenn nicht benötigt
-    // WiFi.mode(WIFI_OFF);
-    // btStop();
-
+    // Initialize serial communication first
     Serial.begin(115200);
     uartCom.begin(9600); // 19200
 
-    // Display und Touch-Setup
+    if(DEBUG) Serial.println("Starting initialization...");
+
+    // Display and touch setup
     lvglSetup();
     ui_init();
 
-    // Initialwerte setzen
+    // Initial values
     setInitialValues();
-
-    // Initialisiere LittleFS
-    if (!LittleFS.begin()) {
-        if(DEBUG) Serial.println("LittleFS konnte nicht initialisiert werden!");
+    
+    // Initialize filesystem
+    if (!initializeFileSystem()) {
+        showErrorAndSleep("File system error");
         return;
     }
+    
+    // Update display to show progress
+    updateDisplay(UI_UPDATE_ITERATIONS);
 
-    // Display aktualisieren
-    for(uint8_t i=0; i <=5; i++) {
-      lv_task_handler();
-      ui_tick();
+    // Load configuration
+    loadConfigWithDefaults();
+    applyConfigToUI();
+    
+    if(DEBUG) printSystemSettings();
+
+    // Connect to controller - this can take up to 15 seconds
+    bool controllerConnected = searchAndLoadController();
+    
+    // Initialize watchdog AFTER controller search to prevent timeouts
+    esp_task_wdt_init(WDT_TIMEOUT, true);
+    esp_task_wdt_add(NULL);
+    
+    if (!controllerConnected) {
+        handleControllerError();
+        return;
     }
+    
+    // Load model data
+    if(DEBUG) Serial.println("Loading models...");
+    set_var_s_status("Loading models...");
+    
+    loadModelsFromStorage();
+    
+    // Display final status of model loading
+    if(DEBUG) {
+        if(objModelPlus != NULL) {
+            Serial.println("Model loader completed successfully");
+        } else {
+            Serial.println("WARNING: Model loader failed to create the + button");
+        }
+    }
+    
+    updateDisplay(10); // More UI updates to ensure models display
+    set_var_s_status("");
 
-    // Konfiguration laden
+    // Navigate to appropriate screen
+    navigateToInitialScreen();
+    
+    if(DEBUG) Serial.println("Initialization complete");
+}
+
+// Break setup into smaller functions
+bool initializeFileSystem() {
+    if (!LittleFS.begin()) {
+        if(DEBUG) Serial.println("LittleFS could not be initialized!");
+        return false;
+    }
+    return true;
+}
+
+void updateDisplay(int iterations) {
+    for(int i = 0; i < iterations; i++) {
+        lv_task_handler();
+        ui_tick();
+        delay(10); // Short delay instead of tight loop
+    }
+}
+
+void showErrorAndSleep(const char* message) {
+    set_var_s_status(message);
+    set_var_b_hide_box_start_error(false);
+    
+    // Show error for 10 seconds then sleep
+    uint32_t startTime = millis();
+    while (millis() - startTime < 10000) {
+        lv_task_handler();
+        ui_tick();
+        uartCom.tick();
+        esp_task_wdt_reset();
+        delay(50);
+    }
+    
+    // Enter deep sleep or reset
+    esp_restart();
+}
+
+void loadConfigWithDefaults() {
     if (!loadConfig()) {
-        // Falls Datei nicht existiert, mit Standardwerten speichern
+        // Set defaults if config can't be loaded
         config = {
-          .owner = "I'm the BOSS",
-          .lastModel = 0,
-          .beep = 1,
-          .flowTicks = 5315,
-          .pressureAvg = 6,
-          .akkuMinV = 105,
-          .akkuFactor = 1,
-          .sysPowerOffTime = 180,
-          .pumpPwrManu = 80,
-          .pumpPwrCalib = 80
+            .owner = "I'm the BOSS",
+            .lastModel = 0,
+            .beep = 1,
+            .flowTicks = 5315,
+            .pressureAvg = 6,
+            .akkuMinV = 105,
+            .akkuFactor = 1,
+            .sysPowerOffTime = 180,
+            .pumpPwrManu = 80,
+            .pumpPwrCalib = 80
         };
         saveConfig();
     }
+}
 
-    bool bContollerIsVisible = searchAndLoadController(); // Suche nach dem Controller
-
-
-    // Load Config in UI-Variables
+void applyConfigToUI() {
     set_var_s_owner(config.owner.c_str());
     set_var_b_load_last_model(!(config.lastModel == 0));
     set_var_b_signal((config.beep == 1));
     set_var_s_flow_ticks(int2char(config.flowTicks));
     set_var_s_pressure_avg(int2char(config.pressureAvg));
     set_var_s_akku_min_v(String(config.akkuMinV / 10.0).c_str());
-    // TODO:
-    // Variable für config.akkuFactor fehlt noch!
+    // TODO: Add UI variable for config.akkuFactor
     set_var_s_sys_power_off_time(int2char(config.sysPowerOffTime));
     set_var_s_pump_pwr_manu(int2char(config.pumpPwrManu));
     set_var_s_pump_pwr_calib(int2char(config.pumpPwrCalib));
     set_var_i_pump_pwr(config.pumpPwrCalib);
     set_var_s_pump_pwr(int2char(get_var_i_pump_pwr(), LBL_POSTFIX_PROZENT));
+}
 
-    if(DEBUG) printSystemSettings();
-
-
-
-    if(!bContollerIsVisible) {
-      set_var_b_hide_box_start_error(false);
-      while(true){
+void handleControllerError() {
+    if(DEBUG) Serial.println("Controller not found or communication error");
+    
+    // Display error message
+    set_var_s_status("Controller not found");
+    set_var_b_hide_box_start_error(false);
+    
+    // Set flag to indicate we're in error state instead of entering infinite loop
+    inControllerErrorState = true;
+    
+    // Update display to ensure the error message is visible
+    for(int i = 0; i < 20; i++) {
         lv_task_handler();
         ui_tick();
-        uartCom.tick();
-      }
+        delay(10);
     }
+}
 
-    // // Display aktualisieren
-    // for(uint8_t i=0; i <=5; i++) {
-    //   lv_task_handler();
-    //   ui_tick();
-    // }
-
-    if(DEBUG) Serial.println("loading models...");
-    set_var_s_status("loading models...");
-
-    // for(uint16_t c=500;c > 0; c--){
-    //   lv_task_handler();
-    //   ui_tick();
-    //   delay(1);
-    // }
-
+void loadModelsFromStorage() {
+    // Make sure models directory exists
+    if (!LittleFS.exists("/models")) {
+        if(DEBUG) Serial.println("Creating models directory...");
+        if (!LittleFS.mkdir("/models")) {
+            if(DEBUG) Serial.println("Failed to create models directory!");
+        }
+    }
+    
     // Modelle aus /models/ laden
     File root = LittleFS.open("/models/");
+    if (!root) {
+        if(DEBUG) Serial.println("Failed to open models directory");
+        return;
+    }
+    
+    if (!root.isDirectory()) {
+        if(DEBUG) Serial.println("Error: /models/ is not a directory");
+        root.close();
+        return;
+    }
+    
+    int modelCount = 0;
     File file = root.openNextFile();
     int maxId = 1;
     int curId;
+    
+    if(DEBUG) Serial.println("Starting to scan models directory...");
+    
     while (file) {
         String fileName = file.name();
+        if(DEBUG) Serial.println("Found file: " + fileName);
+        
+        // Skip files that don't have numeric names or hidden files
+        if (!isDigit(fileName[0])) {
+            if(DEBUG) Serial.println("Skipping non-numeric filename: " + fileName);
+            file.close();
+            file = root.openNextFile();
+            continue;
+        }
+        
         curId = fileName.toInt();
         if(curId > maxId) maxId = curId;
 
-        StaticJsonDocument<128> doc;
-        deserializeJson(doc, file);
-        addModelButton2container(doc["modelName"].as<const char*>(), curId);
+        // Check file size before parsing
+        size_t fileSize = file.size();
+        if(DEBUG) Serial.println("File size: " + String(fileSize) + " bytes");
+        
+        if (fileSize > MODEL_JSON_DOC_SIZE) {
+            if(DEBUG) Serial.println("Warning: File too large for JSON buffer: " + fileName);
+        }
 
-        if(DEBUG) Serial.println("File: " + String(fileName.toInt()) + ", Modell: " + doc["modelName"].as<String>());
+        StaticJsonDocument<MODEL_JSON_DOC_SIZE> doc;
+        DeserializationError error = deserializeJson(doc, file);
+        
+        if (!error) {
+            String modelName = doc["modelName"].as<String>();
+            if(DEBUG) Serial.println("Model ID: " + String(curId) + ", Name: " + modelName);
+            
+            addModelButton2container(modelName, curId);
+            modelCount++;
+        } else {
+            if(DEBUG) Serial.println("Error parsing model file: " + fileName + " - " + String(error.c_str()));
+        }
+        
         file.close();
-
         file = root.openNextFile();
+        
+        // Periodically update display and reset watchdog
+        if (file && (modelCount % 3 == 0)) {
+            lv_task_handler();
+            ui_tick();
+            esp_task_wdt_reset();
+        }
     }
+    
+    if(DEBUG) Serial.println("Loaded " + String(modelCount) + " models, max ID: " + String(maxId));
     objModelPlus = addModelPlusButton2container(++maxId);
+    root.close();
+}
 
-
-
-    for(uint16_t c=2000;c > 0; c--){
-      lv_task_handler();
-      ui_tick();
-      delay(1);
-    }
-
-    set_var_s_status("");
-
-    // letztes Modell laden
+void navigateToInitialScreen() {
+    // Go to last model or home screen
     if(config.lastModel > 0) {
-      g_go2model = true;
+        g_go2model = true;
     } else {
-      g_go2home = true;
+        g_go2home = true;
     }
-
-    // Watchdog Setup
-    esp_task_wdt_init(WDT_TIMEOUT, true);
-    esp_task_wdt_add(NULL);
 }
 
 // Initialwerte setzen
@@ -359,6 +484,7 @@ void setInitialValues() {
     set_var_b_hide_numpad(true);
     set_var_b_hide_cont_flow_calibrate(true);
     set_var_b_hide_cont_model_fuel(true);
+    set_var_b_hide_cont_calib_volt(true);
     set_var_b_hide_model_fuel(true);
     set_var_b_hide_manuel_fuel(true);
 
@@ -413,6 +539,19 @@ bool searchAndLoadController() {
 // Hauptprogramm Loop
 void loop() {
     uint32_t currentMillis = millis();
+    
+    // Reset watchdog first thing to prevent resets
+    esp_task_wdt_reset();
+    
+    // Check if we're in controller error state
+    if (inControllerErrorState) {
+        // Just keep the UI responsive and reset watchdog
+        lv_task_handler();
+        ui_tick();
+        uartCom.tick();
+        delay(50);
+        return; // Skip the rest of the loop
+    }
 
     // 1. UART Kommunikation (höchste Priorität - 100Hz)
     if (currentMillis - lastUartCheck >= UART_CHECK_INTERVAL) {
@@ -449,17 +588,17 @@ void loop() {
     vTaskDelay(1);
     
     /////////////////////////////////////////////////////
-    // lv_task_handler();
-    // ui_tick();
-    // uartCom.tick(); // Empfangene Daten verarbeiten
+// lv_task_handler();
+// ui_tick();
+// uartCom.tick(); // Empfangene Daten verarbeiten
 
-    // handleScreenFlags();
-    // handlePumpControl();
-    // handleManualPump();
-    // handleButtonClick();
-    // handleSettingsPage();
-    // handleKeyboard();
-    // handleNumpad();
+// handleScreenFlags();
+// handlePumpControl();
+// handleManualPump();
+// handleButtonClick();
+// handleSettingsPage();
+// handleKeyboard();
+// handleNumpad();
 }
 
 // Bildschirm-Flags verarbeiten
@@ -723,10 +862,23 @@ void handleButtonClick() {
         break;
 
       case BTN_MODEL_DELETE: // Modell löschen
+        if(DEBUG) Serial.println("BTN_MODEL_DELETE clicked");
+    
+        if (!objLoadedModel) {
+          if(DEBUG) Serial.println("Error: objLoadedModel is NULL");
+          break;
+        }
+    
         // Modell löschen
         deleteModel(objLoadedModel);
         bSaveOnUnload = false;
-        go2screen(scrPrevScreen);
+    
+        // Reset loaded model reference
+        objLoadedModel = NULL;
+    
+        // Update UI - go directly to model select screen
+        go2screen(SCREEN_ID_MODEL_SELECT);
+        if(DEBUG) Serial.println("Navigation to model select screen completed");
         break;
 
       case BTN_MODEL_SAVE_YES: // Modell speichern
@@ -783,13 +935,19 @@ void handleButtonClick() {
         go2screen(SCREEN_ID_MODEL_SELECT);
         break;
 
+      case BTN_SYSTEM_SEND_CALIBVOLT: // Kalibrierung Spannung speichern
+        uartCom.sendData('W', COM_ID_AKKU_VOLT, int2char((int)(atoff(get_var_s_akku_volt_messure()) * 100)), true);
+        set_var_b_hide_cont_calib_volt(true);
+        set_var_b_hide_numpad(true);
+        break;
+
       case BTN_MODEL_SAVE2CONTROLLER:
         uartCom.sendData('W', COM_ID_SAVE_MODEL_EEPROM, "5", true);
         break;
 
       case BTN_SNAKE_START:
         snakeGame.start();
-        //tetrisGame.startGame();
+        //tetrisGame.start();
         break;
       case BTN_SNAKE_STOP:
         snakeGame.stop();
@@ -811,10 +969,17 @@ void handleSettingsPage() {
 
     set_var_b_hide_keyboard(true);
     set_var_b_hide_numpad(true);
+    set_var_b_hide_cont_calib_volt(true);
 
     if(!bSaveOnUnload ) {
       bSaveOnUnload = true;
     }
+  }
+  if(g_viewCalibVolt) {
+    g_viewCalibVolt = false;
+    set_var_s_akku_volt_messure((const char*)get_var_s_akku_volt());
+    set_var_b_hide_cont_calib_volt(false);
+    set_var_b_hide_numpad(false);
   }
 }
 
@@ -1044,13 +1209,23 @@ bool loadModel(int id){
 
   if(id < 0) {
     filename = "/initialModel.json";
+    if(DEBUG) Serial.println("Loading initial model from: " + filename);
   } else {
     filename = "/models/" + String(id) + ".json";
+    if(DEBUG) Serial.println("Loading model from: " + filename);
+  }
+
+  // Check if file exists before trying to load
+  if(!LittleFS.exists(filename)) {
+    if(DEBUG) Serial.println("Error: Model file doesn't exist: " + filename);
+    return false;
   }
 
   bool loadOk = model.loadFromLittleFS(filename.c_str());
   
   if(loadOk) {
+    if(DEBUG) Serial.println("Model loaded successfully: " + model.getModelName());
+    
     // Zugriff auf die Parameter
     set_var_s_modelname(model.getModelName().c_str());
     set_var_s_tank_type(getTankTypeDescription(model.getTankType()));
@@ -1106,6 +1281,8 @@ bool loadModel(int id){
     modelParams.pumpStopHopperPressureDiff;
     */
 
+  } else {
+    if(DEBUG) Serial.println("Failed to load model from: " + filename);
   }
 
   return loadOk;
@@ -1171,22 +1348,54 @@ bool saveModel(const String &filename) {
 }
 
 void deleteModel(lv_obj_t *obj) {
-
-  int id = (int)lv_obj_get_user_data(obj);
-  String filename = "/models/" + String(id) + ".json";
-
-  if(DEBUG) Serial.println("remove:     " + filename);
-  LittleFS.remove(filename);
-
-
-  if(obj != objModelPlus) {
-    lv_obj_del(obj);
-    obj = NULL;
-    if(DEBUG) Serial.println("Menü OBJ delete: erledigt");
-  } else {
-    if(DEBUG) Serial.println("Menü OBJ delete: wird nicht durchgeführt da '+' Button");
+  if (!obj) {
+    if(DEBUG) Serial.println("Error: NULL object passed to deleteModel()");
+    return;
   }
 
+  int id = (int)lv_obj_get_user_data(obj);
+  if(DEBUG) Serial.println("Deleting model with ID: " + String(id));
+  
+  String filename = "/models/" + String(id) + ".json";
+  if(DEBUG) Serial.println("Removing file: " + filename);
+  
+  // Check if file exists before attempting to delete
+  if (LittleFS.exists(filename)) {
+    bool removed = LittleFS.remove(filename);
+    if(DEBUG) {
+      if (removed) {
+        Serial.println("File successfully removed: " + filename);
+      } else {
+        Serial.println("Error: Failed to remove file: " + filename);
+      }
+    }
+  } else {
+    if(DEBUG) Serial.println("Warning: File does not exist: " + filename);
+  }
+
+  // Handle the UI element removal
+  if(obj != objModelPlus) {
+    if(DEBUG) Serial.println("Deleting UI element");
+    lv_obj_t* parent = lv_obj_get_parent(obj);
+    lv_obj_del(obj);
+    obj = NULL;
+    
+    // Force a redraw of the parent container
+    if (parent) {
+      lv_obj_invalidate(parent);
+    }
+    
+    if(DEBUG) Serial.println("Menu OBJ delete: completed");
+  } else {
+    if(DEBUG) Serial.println("Menu OBJ delete: not performed as it's the '+' button");
+  }
+  
+  // If this was the last loaded model, reset the config
+  if (config.lastModel == id) {
+    config.lastModel = 0;
+    saveConfig();
+    if(DEBUG) Serial.println("Reset last loaded model in config");
+  }
 }
 
 

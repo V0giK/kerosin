@@ -15,6 +15,8 @@ char s_sys_power_off_time[100] = { 0 };             // Powerofff idle-Time
 char s_akku_min_v[100] = { 0 };                     // minimale Akkuspannung
 char s_pressure_avg[100] = { 0 };                   // Anzahl Messwerte für Mittelwertbildung
 char s_flow_ticks[100] = { 0 };                     // Flowsensor Anzahl Impulse pro Liter
+char s_akku_volt_messure[100] = { 0 };              // gemessene Akkuspannung (zur kalibrierung)
+bool b_hide_cont_calib_volt;                        // Kalibrierung Spannung hide/show
 
 // Allgemeine für Displaysteuerung
 char s_screen_titel[100] = { 0 };                   // Seitentitel
@@ -743,4 +745,21 @@ bool get_var_b_hide_wait() {
 
 void set_var_b_hide_wait(bool value) {
     b_hide_wait = value;
+}
+
+const char *get_var_s_akku_volt_messure() {
+    return s_akku_volt_messure;
+}
+
+void set_var_s_akku_volt_messure(const char *value) {
+    strncpy(s_akku_volt_messure, value, sizeof(s_akku_volt_messure) / sizeof(char));
+    s_akku_volt_messure[sizeof(s_akku_volt_messure) / sizeof(char) - 1] = 0;
+}
+
+bool get_var_b_hide_cont_calib_volt() {
+    return b_hide_cont_calib_volt;
+}
+
+void set_var_b_hide_cont_calib_volt(bool value) {
+    b_hide_cont_calib_volt = value;
 }

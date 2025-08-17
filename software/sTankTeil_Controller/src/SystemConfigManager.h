@@ -49,7 +49,6 @@ public:
     void setAnzahlMesswerteMittelwert(uint8_t value) { config.anzahlMesswerteMittelwert = value; }
     void setSystemabschaltungSekunden(int value) { config.systemabschaltungSekunden = (value>60||value==0)?value:60; }
     void setSignaltonOn(bool value) { config.signaltonOn = value; }
-    void setBattKalibrierungsfaktor(float value) { config.battKalibrierungsfaktor = value * 1000; }
     void setBattKalibrierungsfaktor(int32_t value) { config.battKalibrierungsfaktor = value; }
 
     // Getter-Methoden
