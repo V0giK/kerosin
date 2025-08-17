@@ -17,6 +17,8 @@ fp-info-cache
 *.xml
 *.pdf
 *-backups/
+*backups/
+*~*.lck
 
 # 3D
 *.f3d
