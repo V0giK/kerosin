@@ -19,65 +19,61 @@
 
 char buffer[BUFFER_LENGTH];
 
+// Tank type descriptions
+const char* TankTypeDescription[] = {
+    "Beutel",
+    "1-Tank",
+    "2-Tank"
+};
+
+// Convert integer to char* with optional postfix
 const char* int2char(int iVal, LabelPostfixEnum postFix) {
-    memset(buffer, 0, BUFFER_LENGTH); // Buffer zurücksetzen
-
-    // Integer zu char* umwandeln
-    snprintf(buffer, BUFFER_LENGTH, "%d", iVal);
-    if(buffer == NULL) {
-        snprintf(buffer, BUFFER_LENGTH, "%d", 0);
+    String s;
+    
+    if(postFix == LBL_POSTFIX_PROZENT) {
+        s = String(iVal) + POSTFIX_PROZENT;
+    } else if(postFix == LBL_POSTFIX_ML) {
+        s = String(iVal) + POSTFIX_ML;
+    } else if(postFix == LBL_POSTFIX_MBAR) {
+        s = String(iVal) + POSTFIX_MBAR;
+    } else {
+        s = String(iVal);
     }
-
-    // Postfix hinzufügen, falls vorhanden
-    switch (postFix) {
-        case LBL_POSTFIX_PROZENT:
-            strncat(buffer, POSTFIX_PROZENT, BUFFER_LENGTH - strlen(buffer) - 1);
-            break;
-        case LBL_POSTFIX_ML:
-            strncat(buffer, POSTFIX_ML, BUFFER_LENGTH - strlen(buffer) - 1);
-            break;
-        case LBL_POSTFIX_MBAR:
-            strncat(buffer, POSTFIX_MBAR, BUFFER_LENGTH - strlen(buffer) - 1);
-            break;
-        case LBL_POSTFIX_NONE:
-        default:
-            break; // Kein Postfix hinzufügen
-    }
-
+    
+    s.toCharArray(buffer, BUFFER_LENGTH);
     return buffer;
 }
 
-const char* TankTypeDescription[] = {
-    "Beutel",
-    "1 Tank",
-    "2 Tanks"
-};
-
+// Get tank type description
 const char* getTankTypeDescription(TankTypeEnum tankType) {
     return TankTypeDescription[tankType];
 }
 
-// für Serial.println(...); aus einer .c
-extern "C" void printMessage(const char *message) {
-    Serial.println(message);
-}
-
-// Werte die vom UI gelesen werden verifizieren
+// Get value with bounds checking
 int getValue(const char* val, int def, int min, int max) {
-    if(strlen(val) == 0) {
-        return def;
+    int value = def;
+    
+    if(val != NULL && val[0] != '\0') {
+        value = atoi(val);
     }
-    int iVal = atoi(val);
-    if(min != -1) {
-        if(iVal < min) iVal = min;
+    
+    if(min <= max) {
+        if(value < min) value = min;
+        if(value > max) value = max;
     }
-    if(max != -1) {
-        if(iVal > max) iVal = max;
-    }
-
-    return iVal;
+    
+    return value;
 }
 
-String getModelFilename(int id){
+// Get model filename based on ID
+String getModelFilename(int id) {
     return "/models/" + String(id) + ".json";
+}
+
+// Helper function to convert float to string with specified decimal places
+float atoff(const char* str) {
+    if(str == NULL || str[0] == '\0') {
+        return 0.0f;
+    }
+    return atof(str);
 }

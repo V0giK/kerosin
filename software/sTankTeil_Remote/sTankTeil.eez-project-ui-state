@@ -1,6 +1,6 @@
 {
   "navigation": {
-    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/0",
+    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/-1",
     "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/6",
     "selectedStyleObject": "[sTankTeil.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[sTankTeil.eez-project]:/bitmaps/0",
@@ -128,7 +128,6 @@
                   "type": "tabset",
                   "id": "#8d88b5f0-c6b7-4eb6-aa50-9e25083fea7f",
                   "weight": 0.5920112136136907,
-                  "selected": 1,
                   "enableClose": false,
                   "children": [
                     {
@@ -155,7 +154,8 @@
                       "enableClose": false,
                       "icon": "material:code"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -194,32 +194,10 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 61.55352480417755,
+              "selected": -1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
-              "children": [
-                {
-                  "type": "tab",
-                  "id": "#6586cb58-3c12-444a-95d1-4a64b3673ea1",
-                  "name": "calibVolt",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/userWidgets/6",
-                    "permanent": false
-                  },
-                  "icon": "svg:user_widget"
-                },
-                {
-                  "type": "tab",
-                  "id": "#45a81659-28ce-456a-b891-56cc438e00ac",
-                  "name": "SettingsSystem",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/userPages/0",
-                    "permanent": false
-                  },
-                  "icon": "svg:page"
-                }
-              ]
+              "children": []
             },
             {
               "type": "row",
@@ -240,8 +218,7 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
@@ -1144,23 +1121,14 @@
     },
     "[sTankTeil.eez-project]:/userPages/4[flow-state]": {
       "selection": {
-        "0": {
-          "0": {},
-          "1": {},
-          "2": {},
-          "4": {
-            "0": {
-              "$selected": true
-            }
-          }
-        }
+        "0": {}
       },
       "transform": {
         "translate": {
-          "x": -472.17799503258595,
-          "y": -205.92578462285485
+          "x": -400,
+          "y": -240
         },
-        "scale": 0.75
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
@@ -1173,23 +1141,15 @@
       "selection": {
         "0": {
           "0": {},
-          "2": {
-            "3": {
-              "$selected": true
-            }
-          },
-          "4": {
-            "4": {}
-          },
-          "5": {}
+          "4": {}
         }
       },
       "transform": {
         "translate": {
-          "x": -281.3435336599181,
-          "y": -153.33598639036154
+          "x": -402.95804487989074,
+          "y": -236.8646485204821
         },
-        "scale": 0.75
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
@@ -1304,6 +1264,30 @@
         "secondToPx": 200,
         "scrollLeft": 0
       }
+    },
+    "[sTankTeil.eez-project]:/userPages/6[flow-state]": {
+      "selection": {
+        "0": {
+          "1": {
+            "0": {
+              "$selected": true
+            }
+          }
+        }
+      },
+      "transform": {
+        "translate": {
+          "x": -400,
+          "y": -240
+        },
+        "scale": 1
+      },
+      "timeline": {
+        "isEditorActive": false,
+        "position": 0,
+        "secondToPx": 200,
+        "scrollLeft": 0
+      }
     }
   },
   "activeOutputSection": 0,
@@ -1328,6 +1312,6 @@
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 0.75,
+  "flowZoom": 1,
   "implementationLanguage": "C"
 }

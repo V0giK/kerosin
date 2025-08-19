@@ -29,8 +29,8 @@
 #include "uartCommunication.h"
 #include "ModelParameters.h"
 #include "snakeGame.h"
+// #include "aeroBlocks.h"  // Include the AeroBlocks header
 #include <esp_task_wdt.h>
-//#include "tetris.h"
 
 
 // Konstanten für optimale Timing-Intervalle
@@ -51,7 +51,7 @@ const bool DEBUG = false;
 // LVGL Display-Konfiguration
 #define TFT_HOR_RES SCREEN_WIDTH
 #define TFT_VER_RES SCREEN_HEIGHT
-#define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 10 * (LV_COLOR_DEPTH / 8))
+#define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 20 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 
 LGFX tft;
@@ -129,8 +129,8 @@ UartCommunication uartCom(17, 18, DEBUG, 2); // RX = GPIO19, TX = GPIO20
 
 // Snake
 SnakeGame snakeGame;
-// Tetris
-//Tetris tetrisGame;
+// AeroBlocks
+//AeroBlocks aeroBlocks;
 
 // Add missing error state flag
 bool inControllerErrorState = false;
@@ -312,7 +312,7 @@ bool initializeFileSystem() {
 
 void updateDisplay(int iterations) {
     for(int i = 0; i < iterations; i++) {
-        lv_task_handler();
+        lv_timer_handler(); // Use only lv_timer_handler() for LVGL 9.x
         ui_tick();
         delay(10); // Short delay instead of tight loop
     }
@@ -325,7 +325,7 @@ void showErrorAndSleep(const char* message) {
     // Show error for 10 seconds then sleep
     uint32_t startTime = millis();
     while (millis() - startTime < 10000) {
-        lv_task_handler();
+        lv_timer_handler(); // Use only lv_timer_handler() for LVGL 9.x
         ui_tick();
         uartCom.tick();
         esp_task_wdt_reset();
@@ -382,7 +382,7 @@ void handleControllerError() {
     
     // Update display to ensure the error message is visible
     for(int i = 0; i < 20; i++) {
-        lv_task_handler();
+        lv_timer_handler(); // Use only lv_timer_handler() for LVGL 9.x
         ui_tick();
         delay(10);
     }
@@ -458,7 +458,7 @@ void loadModelsFromStorage() {
         
         // Periodically update display and reset watchdog
         if (file && (modelCount % 3 == 0)) {
-            lv_task_handler();
+            lv_timer_handler(); // Use only lv_timer_handler() for LVGL 9.x
             ui_tick();
             esp_task_wdt_reset();
         }
@@ -546,7 +546,7 @@ void loop() {
     // Check if we're in controller error state
     if (inControllerErrorState) {
         // Just keep the UI responsive and reset watchdog
-        lv_task_handler();
+        lv_timer_handler(); // Use only lv_timer_handler() for LVGL 9.x
         ui_tick();
         uartCom.tick();
         delay(50);
@@ -557,14 +557,12 @@ void loop() {
     if (currentMillis - lastUartCheck >= UART_CHECK_INTERVAL) {
         lastUartCheck = currentMillis;
         uartCom.tick();  // Verarbeite UART-Daten
-        //processReceivedData();  // Verarbeite empfangene Messdaten
     }
 
     // 2. UI Updates (50Hz)
     if (currentMillis - lastUiUpdate >= UI_UPDATE_INTERVAL) {
         lastUiUpdate = currentMillis;
-        lv_timer_handler();     // LVGL Timer Handler
-        lv_task_handler();
+        lv_timer_handler();     // LVGL Timer Handler - use only this one
         ui_tick();
 
         //updateUIElements();     // Update Display Elements
@@ -575,7 +573,7 @@ void loop() {
         handleSettingsPage();
         handleKeyboard();
         handleNumpad();
-      }
+    }
 
     // 3. System Status (1Hz)
     if (currentMillis - lastStatusCheck >= STATUS_CHECK_INTERVAL) {
@@ -606,6 +604,9 @@ void handleScreenFlags() {
   if (get_var_b_is_pumping())
     return;
 
+  // Reset watchdog at the beginning of potentially long operations
+  esp_task_wdt_reset();
+
   if (g_go2home) {
     g_go2home = false;
     set_var_s_screen_titel("Modellauswahl");
@@ -616,25 +617,32 @@ void handleScreenFlags() {
     } else {
       go2screen(SCREEN_ID_MODEL_SELECT);
     }
+    esp_task_wdt_reset(); // Reset after screen transition
   }
   if (g_go2settings) {
     g_go2settings = false;
     set_var_s_screen_titel("Settings/Calibration");
     go2screen(SCREEN_ID_SETTINGS);
+    esp_task_wdt_reset();
   }
   if (g_go2settingsSystem) {
     g_go2settingsSystem = false;
     set_var_s_screen_titel("System Settings");
     go2screen(SCREEN_ID_SETTINGS_SYSTEM);
+    esp_task_wdt_reset();
   }
   if (g_go2settingsCalibrate) {
     g_go2settingsCalibrate = false;
     set_var_s_screen_titel("Kalibrierung Flowsensor");
     set_var_b_hide_cont_flow_calibrate(false);
     set_var_i_calib_flow_sensor(get_var_s_flow_ticks());
+    
+    // Reset WDT before UART communication
+    esp_task_wdt_reset();
     uartCom.sendData('W', COM_ID_PUMP_MODE, int2char(MODE_CALIB_FLOW), true);
     bSaveOnUnload = false;
     go2screen(SCREEN_ID_PUMP);
+    esp_task_wdt_reset();
   }
   if (g_go2model) {
     g_go2model = false;
@@ -648,31 +656,64 @@ void handleScreenFlags() {
     }
 
     set_var_b_hide_wait(false); // Warte-Kringel an
-
     set_var_s_screen_titel("Tanken (automatik)");
     set_var_b_hide_model_fuel(false);
     set_var_b_pump_pwr_disabled(true);
-    loadModel(id);
+    
+    // Reset WDT before potentially long model loading operation
+    esp_task_wdt_reset();
+    
+    // Load model with timeout protection
+    uint32_t startTime = millis();
+    bool loadSuccess = loadModel(id);
+    if (!loadSuccess && (millis() - startTime > 3000)) { // 3 second timeout
+      if(DEBUG) Serial.println("Model loading timeout!");
+      set_var_s_status("Modell-Ladefehler");
+      set_var_b_hide_wait(true);
+      esp_task_wdt_reset();
+      return;
+    }
+    
+    esp_task_wdt_reset(); // Reset after model loading
+    
+    // UART communications with WDT resets between operations
     uartCom.sendData('W', COM_ID_PUMP_MODE, int2char(MODE_AUTO), true, 5);
+    esp_task_wdt_reset();
+    
     uartCom.sendData('W', COM_ID_BROADCAST, "1", true);
+    esp_task_wdt_reset();
 
     // letztes geladene Modell merken - falls aktiviert
     if(config.lastModel > 0 && config.lastModel != id) {
       config.lastModel = id;
       saveConfig();
+      esp_task_wdt_reset(); // Reset after file operation
     }
 
-    // UI
+    // UI updates
     set_var_i_fuel_ml(0);
     lv_scale_set_range(objects.scale_ml, 0, model.getMaxRefuelMl());
     lv_bar_set_range(objects.bar_ml, 0, model.getMaxRefuelMl());
     set_var_s_cut_off_ml(int2char(model.getMaxRefuelMl(), LBL_POSTFIX_ML));
     set_var_s_status("bereit");
-
-    sendModelDataToController();
+    
+    // Reset WDT before sending model data
+    esp_task_wdt_reset();
+    
+    // Send model data with timeout protection
+    startTime = millis();
+    bool sendSuccess = sendModelDataToController();
+    if (!sendSuccess && (millis() - startTime > 5000)) { // 5 second timeout
+      if(DEBUG) Serial.println("Model data send timeout!");
+      set_var_s_status("Kommunikationsfehler");
+      set_var_b_hide_wait(true);
+      esp_task_wdt_reset();
+      return;
+    }
+    
     go2screen(SCREEN_ID_PUMP);
-
     set_var_b_hide_wait(true); // Warte-Kringel aus
+    esp_task_wdt_reset(); // Final reset
   }
   if(g_go2newModel) {
     g_go2newModel = false;
@@ -681,11 +722,16 @@ void handleScreenFlags() {
     // objLoadedModel = lv_event_get_target_obj(&g_go2newModelE);
     // lv_obj_set_user_data(objLoadedModel, (void*)id);
     objLoadedModel = objModelPlus;  // erforderlich damit beim unload ein Objekt vorhanden ist
+    
+    esp_task_wdt_reset(); // Reset before loading initial model
     loadModel(-1);
+    esp_task_wdt_reset(); // Reset after model loading
+    
     viewModelParameters((TankTypeEnum) get_var_i_tank_type_model());
     int id = (int)lv_obj_get_user_data(objModelPlus);
     set_var_s_modelname((String(get_var_s_modelname()) + String(id)).c_str());
     go2screen(SCREEN_ID_SETTINGS_MODEL);
+    esp_task_wdt_reset(); // Final reset
   }
   if(g_go2settingsModels) {
     g_go2settingsModels = false;
@@ -693,9 +739,14 @@ void handleScreenFlags() {
     set_var_s_screen_titel("Modell bearbeiten");
     objLoadedModel = lv_event_get_target_obj(&g_go2settingsModelsE);
     lv_obj_set_user_data(objLoadedModel, (void*)id);
+    
+    esp_task_wdt_reset(); // Reset before loading model
     loadModel(id);
+    esp_task_wdt_reset(); // Reset after model loading
+    
     viewModelParameters((TankTypeEnum) get_var_i_tank_type_model());
     go2screen(SCREEN_ID_SETTINGS_MODEL);
+    esp_task_wdt_reset(); // Final reset
   }
   if(g_unloadModelSettings) {
     g_unloadModelSettings = false;
@@ -706,7 +757,11 @@ void handleScreenFlags() {
     if(!bSaveOnUnload) {
       bSaveOnUnload = true;
     }
+    esp_task_wdt_reset(); // Final reset
   }
+  
+  // Final watchdog reset at the end
+  esp_task_wdt_reset();
 }
 
 // Pumpensteuerung verarbeiten
@@ -947,10 +1002,12 @@ void handleButtonClick() {
 
       case BTN_SNAKE_START:
         snakeGame.start();
-        //tetrisGame.start();
+        //aeroBlocks.init();
+        //aeroBlocks.start();
         break;
       case BTN_SNAKE_STOP:
         snakeGame.stop();
+        //aeroBlocks.stop();
         break;
 
       case BTN_MODEL_TYPE_CHG:  
@@ -1024,7 +1081,7 @@ bool requestAndValidateConfiguration(int16_t id, const String &description, unsi
 
     // Warte auf die Antwort
     while (millis() - startTime < globalTimeout) {
-        lv_task_handler();
+        lv_timer_handler(); // Use only lv_timer_handler() for LVGL 9.x
         ui_tick();      // Display aktualisieren
         uartCom.tick(); // Eingehende Nachrichten prüfen
 
@@ -1230,10 +1287,6 @@ bool loadModel(int id){
     set_var_s_modelname(model.getModelName().c_str());
     set_var_s_tank_type(getTankTypeDescription(model.getTankType()));
     set_var_i_tank_type_model(model.getTankType());
-
-    // ?? menge
-    //lv_scale_set_range(objects.scale_ml, 0, doc["menge"]);
-    //set_var_i_fuel_ml(doc["menge"]);
 
     set_var_s_pump_pwr(int2char(model.getPumpPwr(), LBL_POSTFIX_PROZENT));
     set_var_i_pump_pwr(model.getPumpPwr());
