@@ -786,7 +786,6 @@ void SnakeGame::stop() {
     
     // Process any pending LVGL operations before screen restoration
     lv_timer_handler();
-    lv_task_handler();
     delay(10);
     
     // Return to previous screen and clean up resources
@@ -797,7 +796,6 @@ void SnakeGame::stop() {
     
     // Process LVGL tasks after complete cleanup
     lv_timer_handler();
-    lv_task_handler();
     
     // Reset watchdog one final time
     esp_task_wdt_reset();
@@ -868,10 +866,6 @@ void SnakeGame::restore_screen() {
     
     // Wait for any pending LVGL operations to complete
     lv_timer_handler();
-    lv_task_handler();
-    
-    // Reset watchdog after initial cleanup
-    esp_task_wdt_reset();
     
     // Special handling to avoid crashes during screen transition
     // Perform the screen switch first - do not delete yet
@@ -884,7 +878,6 @@ void SnakeGame::restore_screen() {
         
         // Process any pending operations
         lv_timer_handler();
-        lv_task_handler();
         delay(10);
     }
     
@@ -911,7 +904,6 @@ void SnakeGame::restore_screen() {
     
     // Process any pending events before we return
     lv_timer_handler();
-    lv_task_handler();
     
     // Allow time for screen transition to complete
     delay(50);
