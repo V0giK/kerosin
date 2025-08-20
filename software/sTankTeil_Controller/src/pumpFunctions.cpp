@@ -17,6 +17,7 @@
 #include "pumpFunctions.h"
 
 void setTankSequence(uint8_t pump_ctr, uint8_t tanktype) {
+  pumpSeq.setLastPumpCtr(pump_ctr);
   switch(pump_ctr) {
     case CTR_ENTTANKEN:
       switch(tanktype) {
@@ -90,7 +91,7 @@ void refuellAction()
 
         /* Ende Betanken prüfen */
         // Pressure - MessureDelay vorbei
-        if(model.getMessurementDelay() <= actionSec)
+        if((uint32_t)model.getMessurementDelay() <= actionSec)
         {
           // Pressure prüfen
           if(model.getMaxPressure() != 0 && model.getMaxPressure() <= pressureSensor.getPressureMbar())
@@ -136,7 +137,7 @@ void refuellAction()
         }
 
         // Fuell time prüfen
-        if(model.getMaxRefuelTime() != 0 && model.getMaxRefuelTime() <= actionSec)
+        if(model.getMaxRefuelTime() != 0 && (uint32_t)model.getMaxRefuelTime() <= actionSec)
         {
           pump.stop();
           delay(100);
@@ -167,7 +168,11 @@ void defuellAction()
         // starten
         el->status = true;
         flowSensor.resetTotalFlow();        // getankte Menge nullen
-        flowSensor.setFilling(false);
+        if(pumpSeq.isLastPumpCtr(CTR_ENTTANKEN)){
+          flowSensor.setFilling(true);
+        }else{
+            flowSensor.setFilling(false);
+        }
         pump.backwardRamp(model.getPumpPwr());   // Pumpe starten
         remoteCom.sendData('W', COM_ID_STATUS, "entanken");
         actionTime = millis();
@@ -181,7 +186,7 @@ void defuellAction()
         /* Ende Enttanken prüfen */
 
         // Pressure - MessureDelay vorbei
-        if(model.getMessurementDelay() <= actionSec)
+        if((uint32_t)model.getMessurementDelay() <= actionSec)
         {
           if(model.getTankType() == TANK_BEUTEL)
           {
@@ -210,7 +215,7 @@ void defuellAction()
                 emptySec = (millis() - emptyTime) / 1000;
 
                 // erst nach der Zeit für Leererkennung stoppen
-                if(model.getPumpStopEmptyDelay() <= emptySec) {
+                if((uint32_t)model.getPumpStopEmptyDelay() <= emptySec) {
                   emptyTime = 0;
                   pump.stop();
                   delay(100);
@@ -251,7 +256,7 @@ void defuellAction()
                 emptySec = (millis() - emptyTime) / 1000;
 
                 // erst nach der Zeit füe Leererkennung stoppen
-                if(model.getPumpStopEmptyDelay() <= emptySec) {
+                if((uint32_t)model.getPumpStopEmptyDelay() <= emptySec) {
                   emptyTime = 0;
                   pump.stop();
                   delay(100);
@@ -288,7 +293,7 @@ void defuellAction()
         }
 
         // Defuell time prüfen
-        if(model.getMaxDefuelTime() != 0 && model.getMaxDefuelTime() <= actionSec)
+        if(model.getMaxDefuelTime() != 0 && (uint32_t)model.getMaxDefuelTime() <= actionSec)
         {
           pump.stop();
           delay(100);
@@ -331,7 +336,7 @@ void backfuellAction()
         //if(DEBUG) { Serial.println(actionSec); delay(10); }
 
         // BackFuell time prüfen
-        if(model.getBackFuelTime() <= actionSec)
+        if((uint32_t)model.getBackFuelTime() <= actionSec)
         {
           pump.stop();
           delay(100);
@@ -376,7 +381,7 @@ void airremovalAction()
 
         /* Ende Entetanken prüfen */
         // Pressure - MessureDelay vorbei
-        if(model.getMessurementDelay() <= actionSec)
+        if((uint32_t)model.getMessurementDelay() <= actionSec)
         {
           // Pressure prüfen - !!! ACHTUNG - Funktion nur bei bidirektionalem Drucksensor - ACHTUNG !!!
           if(model.getMaxPressure() != 0 && model.getMaxPressure() <= pressureSensor.getPressureMbar())
@@ -405,7 +410,7 @@ void airremovalAction()
               emptySec = (millis() - emptyTime) / 1000;
 
               // erst nach der Zeit für 'keine Luft mehr'' stoppen
-              if(model.getAirRemovalTime() <= emptySec) {
+              if((uint32_t)model.getAirRemovalTime() <= emptySec) {
                 emptyTime = 0;
                 pump.stop();
                 delay(100);

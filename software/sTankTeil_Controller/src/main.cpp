@@ -207,7 +207,6 @@ void loop() {
     lastMillis5sec = currentMillis;
 
     voltReader.evaluateVoltage(); // Bewertung der Spannung und ggf. Callback-Aufruf
-    // TODO: wann - wo - wie oft - senden
     remoteCom.sendData('W', COM_ID_AKKU_VOLT, voltReader.getLastVoltageString().c_str());
 
   }

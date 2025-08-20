@@ -42,6 +42,8 @@ private:
     size_t currentIndex;
     bool bProcessing;
 
+    int lastPumpCtr; // zuletzt übergebener pump_ctr
+
 public:
     // Konstruktor
     PumpSequence(size_t size);
@@ -83,4 +85,8 @@ public:
 
     // Verarbeitung stoppen
     void stopProcessing();
+
+    void setLastPumpCtr(int ctr) { lastPumpCtr = ctr; }
+    int getLastPumpCtr() const { return lastPumpCtr; }
+    bool isLastPumpCtr(int ctr) const { return lastPumpCtr == ctr; }
 };
