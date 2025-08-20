@@ -622,7 +622,8 @@ void handleScreenFlags() {
   if (g_go2settings) {
     g_go2settings = false;
     set_var_s_screen_titel("Settings/Calibration");
-    go2screen(SCREEN_ID_SETTINGS);
+    //go2screen(SCREEN_ID_SETTINGS);
+    go2screen(SCREEN_ID_SETTINGS_SYSTEM);
     esp_task_wdt_reset();
   }
   if (g_go2settingsSystem) {
