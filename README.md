@@ -30,6 +30,15 @@ Ziel ist eine robuste und automatisierte mit komfortabler Bedienung und sicherer
 
 ---
 
+## ToDo
+
+- Be/Enttankung bei Erreichen der Abschaltzeit beenden (Prio: nice to have)
+- Versionsinformationen von Controller und Remote am Touchdisplay mit anzeigen (Prio: nice to have)
+- OTA Möglichkeit hinzufügen (Prio: nice to have)
+- Backup für Modelle und alle anderen json-Daten der Remote (Prio: nice to have)
+
+---
+
 ## 📂 Projektstruktur
 
 ```
