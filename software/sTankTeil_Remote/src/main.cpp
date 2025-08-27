@@ -27,7 +27,7 @@
 #include "ui/actions.h"
 #include "helper.h"
 #include "uartCommunication.h"
-#include "ModelParameters.h"
+#include "modelParameters.h"
 #include "snakeGame.h"
 // #include "aeroBlocks.h"  // Include the AeroBlocks header
 #include <esp_task_wdt.h>

@@ -19,7 +19,7 @@
 #include "main.h"
 #include "helper.h"
 #include "uartCommunication.h"
-#include "ModelParameters.h"
+#include "modelParameters.h"
 #include "ui/vars.h"
 #include "ui/screens.h"
 #include "ui/actions.h"

@@ -3,7 +3,7 @@
 #include "ui/vars.h"
 #include "main.h"
 #include "uartCommunication.h"
-#include "ModelParameters.h"
+#include "modelParameters.h"
 #include "configManager.h"
 #include <esp_task_wdt.h>
 #include <LittleFS.h>
