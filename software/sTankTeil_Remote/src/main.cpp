@@ -54,6 +54,12 @@ static uint32_t lastStatusCheck = 0;
 const bool DEBUG = false;
 //LV_LOG_USER("dfg");
 
+// Setup constants
+const int UI_UPDATE_ITERATIONS = 5;
+const int MODEL_JSON_DOC_SIZE = 1024;  // Increased from 512 to 1024 bytes to handle larger model files
+const int SETUP_DISPLAY_DELAY = 100;  // ms
+
+// Display
 LGFX tft;
 
 // Globale Flags (aus actions.c)
@@ -88,16 +94,6 @@ extern volatile bool g_unloadModelSettings;
 extern volatile bool bModelButtonLongPressed;
 extern volatile bool g_viewCalibVolt;
 
-// namespace GlobalFlags {
-//   bool g_go2home, g_go2settings, g_go2settingsSystem, g_go2settingsCalibrate, g_go2manuelPump;
-//   bool g_pumpStop, g_pumpIn, g_pumpOut, g_go2model, g_unloadSystemSettings;
-//   bool g_keyboardShow, g_numpadShow, g_unloadManuelFuel;
-//   bool g_eventButtonClick, g_changePumpPwr, g_go2newModel, g_unloadModelSettings;
-//   bool g_go2settingsModels;
-//   lv_event_t g_keyboardShowE, g_numpadShowE, g_go2modelE, g_eventButtonClickE;
-//   lv_event_t g_changePumpPwrE, g_go2newModelE, g_go2settingsModelsE;
-// }
-// using namespace GlobalFlags;
 
 lv_obj_t *objModelPlus = NULL;
 lv_obj_t *objLoadedModel = NULL;
@@ -142,11 +138,6 @@ void printSystemSettings() {
     Serial.println();
   }
 }
-
-// Setup constants
-const int UI_UPDATE_ITERATIONS = 5;
-const int MODEL_JSON_DOC_SIZE = 1024;  // Increased from 512 to 1024 bytes to handle larger model files
-const int SETUP_DISPLAY_DELAY = 100;  // ms
 
 void setup() {
     // Initialize serial communication first
@@ -213,7 +204,7 @@ void setup() {
     if(DEBUG) Serial.println("Initialization complete");
 }
 
-// Break setup into smaller functions
+// Dateisystem initialisieren
 bool initializeFileSystem() {
     if (!LittleFS.begin()) {
         if(DEBUG) Serial.println("LittleFS could not be initialized!");
@@ -222,6 +213,7 @@ bool initializeFileSystem() {
     return true;
 }
 
+// Controller error handling
 void handleControllerError() {
     if(DEBUG) Serial.println("Controller not found or communication error");
     
@@ -240,6 +232,7 @@ void handleControllerError() {
     }
 }
 
+// Navigate to initial screen based on config
 void navigateToInitialScreen() {
     // Go to last model or home screen
     if(config.lastModel > 0) {

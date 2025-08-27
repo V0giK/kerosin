@@ -34,6 +34,34 @@ bool loadModel(int id, ModelParameters &model) {
     }
     bool loadOk = model.loadFromLittleFS(filename.c_str());
     if(DEBUG && loadOk) Serial.println("Model loaded successfully: " + model.getModelName());
+
+        // Zugriff auf die Parameter
+    set_var_s_modelname(model.getModelName().c_str());
+    set_var_s_tank_type(getTankTypeDescription(model.getTankType()));
+    set_var_i_tank_type_model(model.getTankType());
+
+    set_var_s_pump_pwr(int2char(model.getPumpPwr(), LBL_POSTFIX_PROZENT));
+    set_var_i_pump_pwr(model.getPumpPwr());
+    set_var_s_pump_pwr_model(int2char(model.getPumpPwr()));
+
+    set_var_s_pressure_drop_hose_break(int2char(model.getPressureDropHoseBreak()));
+    set_var_s_fueling_last(int2char(model.getFuelingLast()));
+    set_var_s_fueling_count(int2char(model.getFuelingCount()));
+    set_var_s_fueling_total(String(model.getFuelingTotal() / 1000.0).c_str());
+    set_var_s_max_refuel_time(int2char(model.getMaxRefuelTime()));
+    set_var_s_max_defuel_time(int2char(model.getMaxDefuelTime()));
+    set_var_s_back_fuel_time(int2char(model.getBackFuelTime()));
+    set_var_s_air_removal_time(int2char(model.getAirRemovalTime()));
+    set_var_s_pump_stop_empty_delay(int2char(model.getPumpStopEmptyDelay()));
+    set_var_s_messurement_delay(int2char(model.getMessurementDelay()));
+    set_var_s_max_refuel_ml(int2char(model.getMaxRefuelMl()));
+    set_var_s_max_defuel_ml(int2char(model.getMaxDefuelMl()));
+    set_var_s_max_pressure(int2char(model.getMaxPressure()));
+    set_var_s_pump_stop_pressure_diff(int2char(model.getPumpStopPressureDiff()));
+    set_var_s_pump_stop_pressure_empty(int2char(model.getPumpStopPressureEmpty()));
+    set_var_s_hopper_pressure(int2char(model.getHopperPressure()));
+    set_var_s_pump_stop_hopper_pressure_diff(int2char(model.getPumpStopHopperPressureDiff()));
+    
     return loadOk;
 }
 
