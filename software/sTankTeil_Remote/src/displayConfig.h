@@ -16,16 +16,12 @@
  */
 
 #pragma once
-
-#include <lvgl.h>
 #include "lovyanGfxSetup.h"
+#include "lv_conf.h"
 
-extern LGFX tft;
-extern const bool DEBUG;
+#define TFT_HOR_RES SCREEN_WIDTH
+#define TFT_VER_RES SCREEN_HEIGHT
+#define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 20 * (LV_COLOR_DEPTH / 8))
 
-// Funktionsprototypen
-void deleteModel(lv_obj_t *obj);
-// New function prototypes for setup improvements
-bool initializeFileSystem();
-void handleControllerError();
-void navigateToInitialScreen();
+// Definition statt nur extern!
+inline uint32_t draw_buf[DRAW_BUF_SIZE / 4] = {0};

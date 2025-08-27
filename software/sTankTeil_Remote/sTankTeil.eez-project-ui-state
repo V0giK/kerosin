@@ -1,6 +1,6 @@
 {
   "navigation": {
-    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/-1",
+    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/1",
     "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/6",
     "selectedStyleObject": "[sTankTeil.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[sTankTeil.eez-project]:/bitmaps/0",
@@ -154,8 +154,7 @@
                       "enableClose": false,
                       "icon": "material:code"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
@@ -194,10 +193,22 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 61.55352480417755,
-              "selected": -1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
-              "children": []
+              "children": [
+                {
+                  "type": "tab",
+                  "id": "#c086ff6e-eb98-4790-85c3-56eac588aec2",
+                  "name": "Settings",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[sTankTeil.eez-project]:/userPages/1",
+                    "permanent": false
+                  },
+                  "icon": "svg:page"
+                }
+              ],
+              "active": true
             },
             {
               "type": "row",
@@ -984,7 +995,7 @@
           "x": -472.17799503258595,
           "y": -205.92578462285485
         },
-        "scale": 0.75
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
@@ -1050,7 +1061,7 @@
           "x": -500.159090909091,
           "y": -372
         },
-        "scale": 0.75
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,

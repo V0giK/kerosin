@@ -19,9 +19,6 @@
 #include "main.h"
 #include "esp_task_wdt.h"
 
-// Debug output control
-static const bool DEBUG = false;
-
 // Tetris piece definitions - each represents a different aircraft type
 // Using standard tetromino shapes with aviation-themed names
 const uint16_t PIECE_DEFS[AERO_PIECE_COUNT][4] = {

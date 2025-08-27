@@ -18,14 +18,7 @@
 #pragma once
 
 #include <lvgl.h>
-#include "lovyanGfxSetup.h"
 
-extern LGFX tft;
-extern const bool DEBUG;
-
-// Funktionsprototypen
-void deleteModel(lv_obj_t *obj);
-// New function prototypes for setup improvements
-bool initializeFileSystem();
-void handleControllerError();
-void navigateToInitialScreen();
+// Pumpensteuerung verarbeiten
+void handlePumpControl();
+void handleManualPump();
