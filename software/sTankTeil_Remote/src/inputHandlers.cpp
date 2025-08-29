@@ -25,6 +25,89 @@
 #include "ui/actions.h"
 #include "snakeGame.h"
 #include "configManager.h" // Add this include for Config type
+#include <WiFi.h>
+#include <WebServer.h>
+#include <ElegantOTA.h>
+#include <LittleFS.h>
+
+WebServer backupServer(80);
+bool backupServerRunning = false;
+
+void handleBackupWebServer() {
+    if (backupServerRunning) return;
+
+    // Start WiFi AP
+    WiFi.mode(WIFI_AP);
+    WiFi.softAP("KerosinBackup", "12345678");
+
+    // Root page: minimal HTML with backup/restore and ElegantOTA link
+    backupServer.on("/", HTTP_GET, []() {
+        String html = "<!DOCTYPE html><html><head><title>Kerosin Backup</title></head><body style='font-family:sans-serif;background:#222;color:#eee;'>";
+        html += "<h2>Kerosin Backup/Restore</h2>";
+        html += "<form method='GET' action='/backup'><button style='width:120px;height:40px;'>Backup</button></form>";
+        html += "<form method='POST' action='/restore' enctype='multipart/form-data'><input type='file' name='file' multiple><button>Restore</button></form>";
+        html += "<br><a href='/update'>Firmware Update (OTA)</a>";
+        html += "</body></html>";
+        backupServer.send(200, "text/html", html);
+    });
+
+    // Backup: list all .json files and offer as download (zip not implemented for minimal resource usage)
+    backupServer.on("/backup", HTTP_GET, []() {
+        String html = "<!DOCTYPE html><html><head><title>Backup</title></head><body>";
+        html += "<h3>Download .json files:</h3>";
+        File root = LittleFS.open("/");
+        File file = root.openNextFile();
+        while (file) {
+            String fname = String(file.name());
+            if (fname.endsWith(".json")) {
+                html += "<a href='/download?file=" + fname + "'>" + fname + "</a><br>";
+            }
+            file.close();
+            file = root.openNextFile();
+        }
+        html += "<br><a href='/'>Back</a></body></html>";
+        backupServer.send(200, "text/html", html);
+    });
+
+    // Download endpoint for individual files
+    backupServer.on("/download", HTTP_GET, []() {
+        String fname = backupServer.arg("file");
+        if (!LittleFS.exists(fname)) {
+            backupServer.send(404, "text/plain", "File not found");
+            return;
+        }
+        File f = LittleFS.open(fname, "r");
+        backupServer.streamFile(f, "application/json");
+        f.close();
+    });
+
+    // Restore: upload .json files
+    backupServer.on("/restore", HTTP_POST, []() {
+        backupServer.send(200, "text/html", "<html><body>Restore complete.<br><a href='/'>Back</a></body></html>");
+    }, []() {
+        HTTPUpload& upload = backupServer.upload();
+        if (upload.status == UPLOAD_FILE_START) {
+            File f = LittleFS.open("/" + upload.filename, "w");
+            f.close();
+        } else if (upload.status == UPLOAD_FILE_WRITE) {
+            File f = LittleFS.open("/" + upload.filename, "a");
+            if (f) f.write(upload.buf, upload.currentSize);
+            f.close();
+        }
+    });
+
+    // ElegantOTA
+    ElegantOTA.begin(&backupServer);
+
+    backupServerRunning = true;
+    backupServer.begin();
+}
+
+void handleBackupServerLoop() {
+    if (backupServerRunning) {
+        backupServer.handleClient();
+    }
+}
 
 // Externe Variablen aus main.cpp
 extern lv_obj_t *objModelPlus;
@@ -167,6 +250,9 @@ void handleButtonClick() {
                 uartCom.sendData('W', COM_ID_AKKU_VOLT, int2char((int)(atoff(get_var_s_akku_volt_messure()) * 100)), true);
                 set_var_b_hide_cont_calib_volt(true);
                 set_var_b_hide_numpad(true);
+                break;
+            case BTN_SYSTEM_BACKUP:
+                handleBackupWebServer();
                 break;
             case BTN_MODEL_SAVE2CONTROLLER:
                 uartCom.sendData('W', COM_ID_SAVE_MODEL_EEPROM, "5", true);

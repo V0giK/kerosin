@@ -616,6 +616,23 @@ void create_screen_settings_system() {
                     lv_obj_add_event_cb(obj, event_handler_cb_settings_system_txt_pump_pwr_manu, LV_EVENT_ALL, 0);
                     add_style_textbox(obj);
                 }
+                {
+                    lv_obj_t *obj = lv_button_create(parent_obj);
+                    lv_obj_set_pos(obj, 0, 635);
+                    lv_obj_set_size(obj, 426, 50);
+                    lv_obj_add_event_cb(obj, action_event_button_click, LV_EVENT_LONG_PRESSED, (void *)15);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_label_style(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text(obj, "Backup/OTA (WiFi)");
+                        }
+                    }
+                }
             }
         }
         {
