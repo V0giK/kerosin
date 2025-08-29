@@ -30,6 +30,7 @@
 #include <ElegantOTA.h>
 #include <LittleFS.h>
 #include <DNSServer.h>
+#include <esp_mac.h> // Für MAC-Adresse
 
 WebServer backupServer(80);
 DNSServer captiveDns;
@@ -39,15 +40,25 @@ bool backupServerRunning = false;
 void handleBackupWebServer() {
     if (backupServerRunning) return;
 
-    // Start WiFi AP
+    // Eindeutige SSID generieren (z.B. MAC-Adresse als Suffix)
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    char macStr[13];
+    sprintf(macStr, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    String ssid = "KerosinBackup-" + String(macStr);
+
+    // Start WiFi AP mit eindeutiger SSID
     WiFi.mode(WIFI_AP);
-    WiFi.softAP("KerosinBackup", "12345678");
+    WiFi.softAP(ssid.c_str(), "12345678");
 
     // Starte DNS-Server für Captive Portal
     captiveDns.start(DNS_PORT, "*", WiFi.softAPIP());
 
+    // --- WICHTIG: Setze DNS auf die eigene IP für alle Anfragen ---
+    // Dies sorgt dafür, dass alle DNS-Anfragen (z.B. zu www.de) auf die ESP32-IP zeigen.
+    // captiveDns.start(DNS_PORT, "*", WiFi.softAPIP()); // ist bereits gesetzt
+
     // --- TFT Hinweis-Screen anzeigen ---
-    // Erstelle einen einfachen Hinweis-Screen auf dem TFT
     lv_obj_t* scr = lv_obj_create(NULL);
     lv_obj_set_style_bg_color(scr, lv_color_hex(0x222222), 0);
 
@@ -58,7 +69,7 @@ void handleBackupWebServer() {
     lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 40);
 
     lv_obj_t* label2 = lv_label_create(scr);
-    lv_label_set_text_fmt(label2, "SSID: %s", WiFi.softAPSSID().c_str());
+    lv_label_set_text_fmt(label2, "SSID: %s", ssid.c_str());
     lv_obj_set_style_text_color(label2, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_18, 0);
     lv_obj_align(label2, LV_ALIGN_TOP_MID, 0, 100);
@@ -75,15 +86,42 @@ void handleBackupWebServer() {
     lv_obj_set_style_text_font(label4, &lv_font_montserrat_18, 0);
     lv_obj_align(label4, LV_ALIGN_TOP_MID, 0, 180);
 
+    lv_obj_t* label5 = lv_label_create(scr);
+    lv_label_set_text(label5, "WiFi beenden: Tankstation ausschalten!");
+    lv_obj_set_style_text_color(label5, lv_color_hex(0xFFDD44), 0);
+    lv_obj_set_style_text_font(label5, &lv_font_montserrat_16, 0);
+    lv_obj_align(label5, LV_ALIGN_BOTTOM_MID, 0, -40);
+
     lv_scr_load(scr);
 
     // Captive Portal: Leite typische URLs auf die Root-Seite um
+    // Zusätzliche Weiterleitungen für Android/Samsung
     backupServer.on("/generate_204", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
     backupServer.on("/hotspot-detect.html", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
     backupServer.on("/captive-portal", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
     backupServer.on("/redirect", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
     backupServer.on("/wpad.dat", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
     backupServer.on("/favicon.ico", HTTP_ANY, []() { backupServer.send(204, "text/plain", ""); });
+
+    // Zusätzliche Android/Samsung URLs für Captive Portal
+    backupServer.on("/ncsi.txt", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/connectivity-check.html", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/mobile/status.php", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/library/test/success.html", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+
+    // Fallback: Alle unbekannten URLs auf Root umleiten
+    backupServer.onNotFound([]() {
+        // Sende eine echte HTML-Seite mit Meta-Refresh für aggressive Weiterleitung
+        String html = "<!DOCTYPE html><html><head>";
+        html += "<meta http-equiv='refresh' content='0; url=/' />";
+        html += "<meta charset='UTF-8'>";
+        html += "<title>Kerosin Captive Portal</title>";
+        html += "</head><body>";
+        html += "<script>window.location.replace('/');</script>";
+        html += "<p>Weiterleitung zum Captive Portal...</p>";
+        html += "</body></html>";
+        backupServer.send(200, "text/html", html);
+    });
 
     // Responsive Root page
     backupServer.on("/", HTTP_GET, []() {
