@@ -174,7 +174,8 @@ void handleBackupWebServer() {
         html += "<small>Hier k&ouml;nnen Sie die Firmware aktualisieren.</small>";
         html += "</div>";
 
-        html += "<div class='footer'>KerosinPumpe &copy; 2025</div>";
+        html += "<div class='footer'>Projekt <b>kerosin</b> &copy; 2025<br>";
+        html += "<a href='https://github.com/V0giK/kerosin' target='_blank'>GitHub: V0giK/kerosin</a></div>";
         html += "</div></body></html>";
         backupServer.send(200, "text/html", html);
     });
@@ -182,7 +183,7 @@ void handleBackupWebServer() {
     // Backup: list all .json files in / and /models/ and offer as download
     backupServer.on("/backup", HTTP_GET, []() {
         String html = "<!DOCTYPE html><html><head><title>Backup</title>";
-        html += "<meta charset='UTF-8'>"; // UTF-8 für Umlaute
+        html += "<meta charset='UTF-8'>";
         html += "<meta name='viewport' content='width=device-width,initial-scale=1'>";
         html += "<style>";
         html += "body{font-family:sans-serif;background:#222;color:#eee;margin:0;padding:0;}";
@@ -226,8 +227,9 @@ void handleBackupWebServer() {
             modelsDir.close();
         }
         html += "</div>";
-        html += "<a class='btnlink' href='/'>Zur&uuml;ck</a>"; // Encodiertes ü
-        html += "<div class='footer'>KerosinPumpe &copy; 2025</div>";
+        html += "<a class='btnlink' href='/'>Zur&uuml;ck</a>";
+        html += "<div class='footer'>Projekt <b>kerosin</b> &copy; 2025<br>";
+        html += "<a href='https://github.com/V0giK/kerosin' target='_blank'>GitHub: V0giK/kerosin</a></div>";
         html += "</div></body></html>";
         backupServer.send(200, "text/html", html);
     });
@@ -254,7 +256,6 @@ void handleBackupWebServer() {
 
     // Restore: upload .json files to root or /models/ depending on user selection
     backupServer.on("/restore", HTTP_POST, []() {
-        // Design wie die anderen Seiten
         String html = "<!DOCTYPE html><html><head><title>Restore</title>";
         html += "<meta charset='UTF-8'>";
         html += "<meta name='viewport' content='width=device-width,initial-scale=1'>";
@@ -271,7 +272,8 @@ void handleBackupWebServer() {
         html += "<h2>Restore</h2>";
         html += "<div class='msg'>Restore erfolgreich abgeschlossen.</div>";
         html += "<a class='btnlink' href='/'>Zur&uuml;ck</a>";
-        html += "<div class='footer'>KerosinPumpe &copy; 2025</div>";
+        html += "<div class='footer'>Projekt <b>kerosin</b> &copy; 2025<br>";
+        html += "<a href='https://github.com/V0giK/kerosin' target='_blank'>GitHub: V0giK/kerosin</a></div>";
         html += "</div></body></html>";
         backupServer.send(200, "text/html", html);
     }, []() {
