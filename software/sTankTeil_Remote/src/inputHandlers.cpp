@@ -29,8 +29,11 @@
 #include <WebServer.h>
 #include <ElegantOTA.h>
 #include <LittleFS.h>
+#include <DNSServer.h>
 
 WebServer backupServer(80);
+DNSServer captiveDns;
+const byte DNS_PORT = 53;
 bool backupServerRunning = false;
 
 void handleBackupWebServer() {
@@ -40,57 +43,231 @@ void handleBackupWebServer() {
     WiFi.mode(WIFI_AP);
     WiFi.softAP("KerosinBackup", "12345678");
 
-    // Root page: minimal HTML with backup/restore and ElegantOTA link
+    // Starte DNS-Server für Captive Portal
+    captiveDns.start(DNS_PORT, "*", WiFi.softAPIP());
+
+    // --- TFT Hinweis-Screen anzeigen ---
+    // Erstelle einen einfachen Hinweis-Screen auf dem TFT
+    lv_obj_t* scr = lv_obj_create(NULL);
+    lv_obj_set_style_bg_color(scr, lv_color_hex(0x222222), 0);
+
+    lv_obj_t* label1 = lv_label_create(scr);
+    lv_label_set_text(label1, "Achtung: WiFi ist jetzt aktiv!");
+    lv_obj_set_style_text_color(label1, lv_color_hex(0xFF4444), 0);
+    lv_obj_set_style_text_font(label1, &lv_font_montserrat_24, 0);
+    lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 40);
+
+    lv_obj_t* label2 = lv_label_create(scr);
+    lv_label_set_text_fmt(label2, "SSID: %s", WiFi.softAPSSID().c_str());
+    lv_obj_set_style_text_color(label2, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_font(label2, &lv_font_montserrat_18, 0);
+    lv_obj_align(label2, LV_ALIGN_TOP_MID, 0, 100);
+
+    lv_obj_t* label3 = lv_label_create(scr);
+    lv_label_set_text_fmt(label3, "Passwort: %s", "12345678");
+    lv_obj_set_style_text_color(label3, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_font(label3, &lv_font_montserrat_18, 0);
+    lv_obj_align(label3, LV_ALIGN_TOP_MID, 0, 140);
+
+    lv_obj_t* label4 = lv_label_create(scr);
+    lv_label_set_text_fmt(label4, "IP: %s", WiFi.softAPIP().toString().c_str());
+    lv_obj_set_style_text_color(label4, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_font(label4, &lv_font_montserrat_18, 0);
+    lv_obj_align(label4, LV_ALIGN_TOP_MID, 0, 180);
+
+    lv_scr_load(scr);
+
+    // Captive Portal: Leite typische URLs auf die Root-Seite um
+    backupServer.on("/generate_204", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/hotspot-detect.html", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/captive-portal", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/redirect", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/wpad.dat", HTTP_ANY, []() { backupServer.sendHeader("Location", "/", true); backupServer.send(302, "text/plain", ""); });
+    backupServer.on("/favicon.ico", HTTP_ANY, []() { backupServer.send(204, "text/plain", ""); });
+
+    // Responsive Root page
     backupServer.on("/", HTTP_GET, []() {
-        String html = "<!DOCTYPE html><html><head><title>Kerosin Backup</title></head><body style='font-family:sans-serif;background:#222;color:#eee;'>";
+        String html = "<!DOCTYPE html><html><head><title>Kerosin Backup</title>";
+        html += "<meta charset='UTF-8'>";
+        html += "<meta name='viewport' content='width=device-width,initial-scale=1'>";
+        html += "<style>";
+        html += "body{font-family:sans-serif;background:#222;color:#eee;margin:0;padding:0;}";
+        html += ".container{max-width:400px;margin:30px auto;padding:20px;background:#333;border-radius:12px;box-shadow:0 2px 8px #0008;}";
+        html += "h2{font-size:2em;text-align:center;margin-bottom:24px;}";
+        html += ".section{margin:24px 0;padding:16px 12px;background:#222;border-radius:8px;box-shadow:0 1px 4px #0006;}";
+        html += ".section h3{margin-top:0;margin-bottom:12px;font-size:1.3em;color:#8cf;}";
+        html += ".section label{display:block;margin-bottom:8px;font-size:1em;}";
+        html += "form, .btnlink{display:block;margin:12px 0;text-align:center;}";
+        html += "button,input[type=file],select{font-size:1.1em;padding:10px 20px;margin:8px 0;border-radius:8px;border:none;}";
+        html += "button{background:#4caf50;color:#fff;box-shadow:0 2px 4px #0004;}";
+        html += "button:active{background:#388e3c;}";
+        html += "a.btnlink{display:inline-block;background:#2196f3;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;box-shadow:0 2px 4px #0004;margin:10px 0;}";
+        html += "a.btnlink:active{background:#1565c0;}";
+        html += ".footer{text-align:center;font-size:0.9em;color:#aaa;margin-top:24px;}";
+        html += "</style></head><body>";
+        html += "<div class='container'>";
         html += "<h2>Kerosin Backup/Restore</h2>";
-        html += "<form method='GET' action='/backup'><button style='width:120px;height:40px;'>Backup</button></form>";
-        html += "<form method='POST' action='/restore' enctype='multipart/form-data'><input type='file' name='file' multiple><button>Restore</button></form>";
-        html += "<br><a href='/update'>Firmware Update (OTA)</a>";
-        html += "</body></html>";
+
+        // Backup section
+        html += "<div class='section'>";
+        html += "<h3>Backup</h3>";
+        html += "<form method='GET' action='/backup'><button>Backup anzeigen</button></form>";
+        html += "<small>Hier k&ouml;nnen Sie alle .json Dateien herunterladen.</small>";
+        html += "</div>";
+
+        // Restore section
+        html += "<div class='section'>";
+        html += "<h3>Restore</h3>";
+        html += "<form method='POST' action='/restore' enctype='multipart/form-data'>";
+        html += "<label for='restore_target'>Restore Ziel:</label>";
+        html += "<select name='restore_target' id='restore_target'>";
+        html += "<option value='root'>Root-Verzeichnis</option>";
+        html += "<option value='models'>/models/ Verzeichnis</option>";
+        html += "</select><br>";
+        // Setze accept=".json" für die Dateiauswahl
+        html += "<input type='file' name='file' multiple accept='.json'><br><button>Restore</button></form>";
+        html += "<small>Laden Sie eine oder mehrere .json Dateien hoch und w&auml;hlen Sie das Zielverzeichnis.</small>";
+        html += "</div>";
+
+        // OTA section
+        html += "<div class='section'>";
+        html += "<h3>Firmware Update (OTA)</h3>";
+        html += "<a class='btnlink' href='/update'>ElegantOTA &ouml;ffnen</a>";
+        html += "<small>Hier k&ouml;nnen Sie die Firmware aktualisieren.</small>";
+        html += "</div>";
+
+        html += "<div class='footer'>KerosinPumpe &copy; 2025</div>";
+        html += "</div></body></html>";
         backupServer.send(200, "text/html", html);
     });
 
-    // Backup: list all .json files and offer as download (zip not implemented for minimal resource usage)
+    // Backup: list all .json files in / and /models/ and offer as download
     backupServer.on("/backup", HTTP_GET, []() {
-        String html = "<!DOCTYPE html><html><head><title>Backup</title></head><body>";
-        html += "<h3>Download .json files:</h3>";
-        File root = LittleFS.open("/");
-        File file = root.openNextFile();
+        String html = "<!DOCTYPE html><html><head><title>Backup</title>";
+        html += "<meta charset='UTF-8'>"; // UTF-8 für Umlaute
+        html += "<meta name='viewport' content='width=device-width,initial-scale=1'>";
+        html += "<style>";
+        html += "body{font-family:sans-serif;background:#222;color:#eee;margin:0;padding:0;}";
+        html += ".container{max-width:400px;margin:30px auto;padding:20px;background:#333;border-radius:12px;box-shadow:0 2px 8px #0008;}";
+        html += "h2{font-size:2em;text-align:center;margin-bottom:24px;}";
+        html += ".filelist{margin:18px 0;}";
+        html += ".filelist a{display:block;background:#444;padding:10px 12px;margin:6px 0;border-radius:8px;color:#fff;text-decoration:none;font-size:1.1em;box-shadow:0 1px 2px #0004;}";
+        html += ".filelist a:active{background:#2196f3;}";
+        html += "a.btnlink,button{display:inline-block;background:#4caf50;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;box-shadow:0 2px 4px #0004;margin:10px 0;font-size:1.2em;border:none;}";
+        html += "a.btnlink:active,button:active{background:#388e3c;}";
+        html += ".footer{text-align:center;font-size:0.9em;color:#aaa;margin-top:24px;}";
+        html += "</style></head><body>";
+        html += "<div class='container'>";
+        html += "<h2>Backup: .json Dateien</h2>";
+        html += "<div class='filelist'>";
+        // List .json files in root directory
+        File rootDir = LittleFS.open("/");
+        File file = rootDir.openNextFile();
         while (file) {
             String fname = String(file.name());
             if (fname.endsWith(".json")) {
-                html += "<a href='/download?file=" + fname + "'>" + fname + "</a><br>";
+                html += "<a href='/download?file=" + fname + "' download>ROOT: " + fname + "</a>";
             }
             file.close();
-            file = root.openNextFile();
+            file = rootDir.openNextFile();
         }
-        html += "<br><a href='/'>Back</a></body></html>";
+        rootDir.close();
+        // List .json files in /models/ directory
+        if (LittleFS.exists("/models")) {
+            File modelsDir = LittleFS.open("/models");
+            File file = modelsDir.openNextFile();
+            while (file) {
+                String fname = String(file.name());
+                // Korrigiere: fname ist z.B. "1.json", aber Download braucht "/models/1.json"
+                if (fname.endsWith(".json")) {
+                    html += "<a href='/download?file=/models/" + fname + "' download>MODELS: " + fname + "</a>";
+                }
+                file.close();
+                file = modelsDir.openNextFile();
+            }
+            modelsDir.close();
+        }
+        html += "</div>";
+        html += "<a class='btnlink' href='/'>Zur&uuml;ck</a>"; // Encodiertes ü
+        html += "<div class='footer'>KerosinPumpe &copy; 2025</div>";
+        html += "</div></body></html>";
         backupServer.send(200, "text/html", html);
     });
 
     // Download endpoint for individual files
     backupServer.on("/download", HTTP_GET, []() {
         String fname = backupServer.arg("file");
+        if (!fname.startsWith("/")) fname = "/" + fname;
         if (!LittleFS.exists(fname)) {
-            backupServer.send(404, "text/plain", "File not found");
+            backupServer.send(404, "text/plain", "File not found: " + fname);
             return;
         }
         File f = LittleFS.open(fname, "r");
+        if (!f) {
+            backupServer.send(500, "text/plain", "Failed to open file: " + fname);
+            return;
+        }
+        // Setze Content-Disposition für Download mit Originaldateiname
+        String originalName = fname.substring(fname.lastIndexOf('/') + 1);
+        backupServer.sendHeader("Content-Disposition", "attachment; filename=\"" + originalName + "\"");
         backupServer.streamFile(f, "application/json");
         f.close();
     });
 
-    // Restore: upload .json files
+    // Restore: upload .json files to root or /models/ depending on user selection
     backupServer.on("/restore", HTTP_POST, []() {
-        backupServer.send(200, "text/html", "<html><body>Restore complete.<br><a href='/'>Back</a></body></html>");
+        // Design wie die anderen Seiten
+        String html = "<!DOCTYPE html><html><head><title>Restore</title>";
+        html += "<meta charset='UTF-8'>";
+        html += "<meta name='viewport' content='width=device-width,initial-scale=1'>";
+        html += "<style>";
+        html += "body{font-family:sans-serif;background:#222;color:#eee;margin:0;padding:0;}";
+        html += ".container{max-width:400px;margin:30px auto;padding:20px;background:#333;border-radius:12px;box-shadow:0 2px 8px #0008;}";
+        html += "h2{font-size:2em;text-align:center;margin-bottom:24px;}";
+        html += ".msg{margin:24px 0;padding:16px 12px;background:#222;border-radius:8px;box-shadow:0 1px 4px #0006;text-align:center;font-size:1.2em;color:#8cf;}";
+        html += "a.btnlink{display:inline-block;background:#2196f3;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;box-shadow:0 2px 4px #0004;margin:10px 0;}";
+        html += "a.btnlink:active{background:#1565c0;}";
+        html += ".footer{text-align:center;font-size:0.9em;color:#aaa;margin-top:24px;}";
+        html += "</style></head><body>";
+        html += "<div class='container'>";
+        html += "<h2>Restore</h2>";
+        html += "<div class='msg'>Restore erfolgreich abgeschlossen.</div>";
+        html += "<a class='btnlink' href='/'>Zur&uuml;ck</a>";
+        html += "<div class='footer'>KerosinPumpe &copy; 2025</div>";
+        html += "</div></body></html>";
+        backupServer.send(200, "text/html", html);
     }, []() {
         HTTPUpload& upload = backupServer.upload();
+        static String restoreTarget = "root";
+        // Hole das Restore-Ziel aus dem POST-Body (nur beim ersten Upload-Chunk)
         if (upload.status == UPLOAD_FILE_START) {
-            File f = LittleFS.open("/" + upload.filename, "w");
+            if (backupServer.hasArg("restore_target")) {
+                restoreTarget = backupServer.arg("restore_target");
+            }
+            String path;
+            if (restoreTarget == "models") {
+                path = "/models/" + upload.filename;
+            } else {
+                path = "/" + upload.filename;
+            }
+            // Create parent directory if needed
+            int slashIdx = path.lastIndexOf('/');
+            if (slashIdx > 0) {
+                String dir = path.substring(0, slashIdx);
+                if (!LittleFS.exists(dir)) {
+                    LittleFS.mkdir(dir);
+                }
+            }
+            File f = LittleFS.open(path, "w");
             f.close();
         } else if (upload.status == UPLOAD_FILE_WRITE) {
-            File f = LittleFS.open("/" + upload.filename, "a");
+            String path;
+            if (restoreTarget == "models") {
+                path = "/models/" + upload.filename;
+            } else {
+                path = "/" + upload.filename;
+            }
+            File f = LittleFS.open(path, "a");
             if (f) f.write(upload.buf, upload.currentSize);
             f.close();
         }
@@ -105,6 +282,7 @@ void handleBackupWebServer() {
 
 void handleBackupServerLoop() {
     if (backupServerRunning) {
+        captiveDns.processNextRequest();
         backupServer.handleClient();
     }
 }

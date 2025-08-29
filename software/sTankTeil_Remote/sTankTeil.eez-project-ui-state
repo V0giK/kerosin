@@ -1,6 +1,6 @@
 {
   "navigation": {
-    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/1",
+    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/0",
     "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/6",
     "selectedStyleObject": "[sTankTeil.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[sTankTeil.eez-project]:/bitmaps/0",
@@ -193,22 +193,34 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 61.55352480417755,
+              "selected": 1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
                 {
                   "type": "tab",
-                  "id": "#c086ff6e-eb98-4790-85c3-56eac588aec2",
+                  "id": "#86740c02-ee2b-464d-a2c4-e088b1c3474b",
                   "name": "Settings",
                   "component": "editor",
                   "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/userPages/1",
+                    "objectPath": "[sTankTeil.eez-project]:/settings",
+                    "subObjectPath": "[sTankTeil.eez-project]:/settings",
+                    "permanent": false
+                  },
+                  "icon": "material:settings"
+                },
+                {
+                  "type": "tab",
+                  "id": "#c086ff6e-eb98-4790-85c3-56eac588aec2",
+                  "name": "SettingsSystem",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[sTankTeil.eez-project]:/userPages/0",
                     "permanent": false
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "row",
@@ -229,7 +241,8 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -982,20 +995,20 @@
           "0": {},
           "1": {
             "10": {},
-            "14": {
-              "$selected": true
-            },
-            "15": {}
+            "14": {},
+            "15": {},
+            "21": {},
+            "$selected": true
           },
           "2": {}
         }
       },
       "transform": {
         "translate": {
-          "x": -472.17799503258595,
-          "y": -205.92578462285485
+          "x": -325.12291075618145,
+          "y": -424.58548939187403
         },
-        "scale": 1
+        "scale": 0.75
       },
       "timeline": {
         "isEditorActive": false,
@@ -1051,15 +1064,13 @@
     "[sTankTeil.eez-project]:/userPages/1[flow-state]": {
       "selection": {
         "0": {
-          "1": {
-            "$selected": true
-          }
+          "1": {}
         }
       },
       "transform": {
         "translate": {
-          "x": -500.159090909091,
-          "y": -372
+          "x": -478.8498579545455,
+          "y": -280.0859375
         },
         "scale": 1
       },
@@ -1132,14 +1143,22 @@
     },
     "[sTankTeil.eez-project]:/userPages/4[flow-state]": {
       "selection": {
-        "0": {}
+        "0": {
+          "1": {
+            "29": {
+              "0": {
+                "$selected": true
+              }
+            }
+          }
+        }
       },
       "transform": {
         "translate": {
           "x": -400,
           "y": -240
         },
-        "scale": 1
+        "scale": 0.75
       },
       "timeline": {
         "isEditorActive": false,
@@ -1323,6 +1342,6 @@
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
-  "flowZoom": 1,
+  "flowZoom": 0.75,
   "implementationLanguage": "C"
 }
