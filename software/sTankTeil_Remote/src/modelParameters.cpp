@@ -24,9 +24,6 @@ ModelParameters::ModelParameters()
       menge(0),
       pumpPwr(0),
       pressureDropHoseBreak(0),
-      fuelingLast(0),
-      fuelingCount(0),
-      fuelingTotal(0),
       maxRefuelTime(0),
       maxDefuelTime(0),
       backFuelTime(0),
@@ -47,9 +44,6 @@ TankTypeEnum ModelParameters::getTankType() const { return tankType; }
 int ModelParameters::getMenge() const { return menge; }
 int ModelParameters::getPumpPwr() const { return pumpPwr; }
 int ModelParameters::getPressureDropHoseBreak() const { return pressureDropHoseBreak; }
-int ModelParameters::getFuelingLast() const { return fuelingLast; }
-int ModelParameters::getFuelingCount() const { return fuelingCount; }
-int ModelParameters::getFuelingTotal() const { return fuelingTotal; }
 int ModelParameters::getMaxRefuelTime() const { return maxRefuelTime; }
 int ModelParameters::getMaxDefuelTime() const { return maxDefuelTime; }
 int ModelParameters::getBackFuelTime() const { return backFuelTime; }
@@ -70,9 +64,6 @@ void ModelParameters::setTankType(TankTypeEnum type) { tankType = type; }
 void ModelParameters::setMenge(int value) { menge = value; }
 void ModelParameters::setPumpPwr(int value) { pumpPwr = value; }
 void ModelParameters::setPressureDropHoseBreak(int value) { pressureDropHoseBreak = value; }
-void ModelParameters::setFuelingLast(int value) { fuelingLast = value; }
-void ModelParameters::setFuelingCount(int value) { fuelingCount = value; }
-void ModelParameters::setFuelingTotal(int value) { fuelingTotal = value; }
 void ModelParameters::setMaxRefuelTime(int value) {  maxRefuelTime = value; }
 void ModelParameters::setMaxDefuelTime(int value) { maxDefuelTime = value; }
 void ModelParameters::setBackFuelTime(int value) { backFuelTime = value; }
@@ -101,9 +92,6 @@ void ModelParameters::fromJSON(const String& json) {
     menge = doc["menge"] | 0;
     pumpPwr = doc["pumpPwr"] | 0;
     pressureDropHoseBreak = doc["pressureDropHoseBreak"] | 0;
-    fuelingLast = doc["fuelingLast"] | 0;
-    fuelingCount = doc["fuelingCount"] | 0;
-    fuelingTotal = doc["fuelingTotal"] | 0;
     maxRefuelTime = doc["maxRefuelTime"] | 0;
     maxDefuelTime = doc["maxDefuelTime"] | 0;
     backFuelTime = doc["backFuelTime"] | 0;
@@ -127,9 +115,6 @@ String ModelParameters::toJSON() {
     doc["menge"] = menge;
     doc["pumpPwr"] = pumpPwr;
     doc["pressureDropHoseBreak"] = pressureDropHoseBreak;
-    doc["fuelingLast"] = fuelingLast;
-    doc["fuelingCount"] = fuelingCount;
-    doc["fuelingTotal"] = fuelingTotal;
     doc["maxRefuelTime"] = maxRefuelTime;
     doc["maxDefuelTime"] = maxDefuelTime;
     doc["backFuelTime"] = backFuelTime;

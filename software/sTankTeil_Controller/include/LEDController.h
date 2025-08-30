@@ -14,7 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 #pragma once
 
-void buffer_tick();
+#include <Arduino.h>
+
+class LEDController {
+private:
+    int pin;
+    unsigned long lastBlinkTime;
+    unsigned long blinkIntervalLowBattery;
+    unsigned long blinkIntervalError;
+    bool isBlinkingLowBattery;
+    bool isBlinkingError;
+    bool ledState;
+
+public:
+    LEDController(int ledPin);
+
+    void startLowBatteryBlinking();
+    void stopLowBatteryBlinking();
+    void startErrorBlinking();
+    void stopErrorBlinking();
+    void update();
+
+private:
+    void updateLEDState();
+};

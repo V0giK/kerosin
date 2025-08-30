@@ -17,11 +17,4 @@
 
 #pragma once
 
-void handleButtonClick();
-void handleKeyboard();
-void handleNumpad();
-void handleSettingsPage();
-
-// Backup-Webserver Funktionen
-void handleBackupWebServer();
-void handleBackupServerLoop();
+void buffer_tick();

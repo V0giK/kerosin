@@ -21,7 +21,9 @@
 
 #define TFT_HOR_RES SCREEN_WIDTH
 #define TFT_VER_RES SCREEN_HEIGHT
-#define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 20 * (LV_COLOR_DEPTH / 8))
 
-// Definition statt nur extern!
-inline uint32_t draw_buf[DRAW_BUF_SIZE / 4] = {0};
+// Reduziere Buffergröße für weniger RAM-Verbrauch
+#define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 40 * (LV_COLOR_DEPTH / 8))
+
+// Buffer als static deklarieren, optional DMAMEM für PSRAM (LovyanGFX/ESP32)
+static uint32_t draw_buf[DRAW_BUF_SIZE / 4] = {0};

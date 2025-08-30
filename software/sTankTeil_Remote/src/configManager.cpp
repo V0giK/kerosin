@@ -20,7 +20,6 @@ bool saveConfig(const Config &config, const char *configFilePath) {
     doc["flowTicks"] = config.flowTicks;
     doc["pressureAvg"] = config.pressureAvg;
     doc["akkuMinV"] = config.akkuMinV;
-    doc["akkuFactor"] = config.akkuFactor;
     doc["sysPowerOffTime"] = config.sysPowerOffTime;
     doc["pumpPwrManu"] = config.pumpPwrManu;
     doc["pumpPwrCalib"] = config.pumpPwrCalib;
@@ -57,7 +56,6 @@ bool loadConfig(Config &config, const char *configFilePath) {
     config.flowTicks = doc["flowTicks"];
     config.pressureAvg = doc["pressureAvg"];
     config.akkuMinV = doc["akkuMinV"];
-    config.akkuFactor = doc["akkuFactor"];
     config.sysPowerOffTime = doc["sysPowerOffTime"];
     config.pumpPwrManu = doc["pumpPwrManu"];
     config.pumpPwrCalib = doc["pumpPwrCalib"];
@@ -76,7 +74,6 @@ void loadConfigWithDefaults(Config &config, const char *configFilePath) {
         config.flowTicks = 5315;
         config.pressureAvg = 6;
         config.akkuMinV = 105;
-        config.akkuFactor = 1;
         config.sysPowerOffTime = 180;
         config.pumpPwrManu = 80;
         config.pumpPwrCalib = 80;
@@ -91,7 +88,7 @@ void applyConfigToUI(const Config &config) {
     set_var_s_flow_ticks(int2char(config.flowTicks));
     set_var_s_pressure_avg(int2char(config.pressureAvg));
     set_var_s_akku_min_v(String(config.akkuMinV / 10.0).c_str());
-    // TODO: Add UI variable for config.akkuFactor
+    // akkuFactor wird auf dem Controller (Nano) berechnet und dort im EEPROM gespeichert
     set_var_s_sys_power_off_time(int2char(config.sysPowerOffTime));
     set_var_s_pump_pwr_manu(int2char(config.pumpPwrManu));
     set_var_s_pump_pwr_calib(int2char(config.pumpPwrCalib));
@@ -107,7 +104,6 @@ void printSystemSettings(const Config &config) {
     Serial.println("Flow Ticks:           " + String(config.flowTicks));
     Serial.println("Flow Messungen AVG:   " + String(config.pressureAvg));
     Serial.println("Akku min. V:          " + String(config.akkuMinV));
-    // Variable für config.akkuFactor fehlt noch!
     Serial.println("System idle off:      " + String(config.sysPowerOffTime));
     Serial.println("PWR manuell:          " + String(config.pumpPwrManu));
     Serial.println("PWR Calib:            " + String(config.pumpPwrCalib));

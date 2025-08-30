@@ -14,27 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 #pragma once
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#ifdef ESP32
 #include "helper.h"
-#include <LittleFS.h> // JSON-Unterstützung nur für ESP32
+#ifdef ESP32
+#include <LittleFS.h>
 #else
 #include "defines.h"
 #endif
-
 
 // Klasse für Modellparameter
 class ModelParameters {
 private:
     String modelName;
-    TankTypeEnum tankType;
+    int tankType;
     int menge;
     int pumpPwr;
     int pressureDropHoseBreak;
+    int fuelingLast;
+    int fuelingCount;
+    int fuelingTotal;
     int maxRefuelTime;
     int maxDefuelTime;
     int backFuelTime;
@@ -49,16 +50,23 @@ private:
     int hopperPressure;
     int pumpStopHopperPressureDiff;
 
+    void getShortModelname(char buffer[16]);
+    // 15 Bytes für modelName + 20 * 2 Bytes für die int-Werte = 55 Bytes
+    static const size_t MODEL_DATA_SIZE = 15 + (20 * 2);
+
 public:
     // Konstruktor
     ModelParameters();
 
     // Getter-Methoden
     String getModelName() const;
-    TankTypeEnum getTankType() const;
+    int getTankType() const;
     int getMenge() const;
     int getPumpPwr() const;
     int getPressureDropHoseBreak() const;
+    int getFuelingLast() const;
+    int getFuelingCount() const;
+    int getFuelingTotal() const;
     int getMaxRefuelTime() const;
     int getMaxDefuelTime() const;
     int getBackFuelTime() const;
@@ -75,10 +83,13 @@ public:
 
     // Setter-Methoden
     void setModelName(const String& name);
-    void setTankType(TankTypeEnum type);
+    void setTankType(int type);
     void setMenge(int value);
     void setPumpPwr(int value);
     void setPressureDropHoseBreak(int value);
+    void setFuelingLast(int value);
+    void setFuelingCount(int value);
+    void setFuelingTotal(int value);
     void setMaxRefuelTime(int value);
     void setMaxDefuelTime(int value);
     void setBackFuelTime(int value);
@@ -93,13 +104,19 @@ public:
     void setHopperPressure(int value);
     void setPumpStopHopperPressureDiff(int value);
 
-    // Aus JSON laden
+
+    void printModelParameters();
     void fromJSON(const String& json);
 
-    // In JSON speichern
+#ifdef ESP32
     String toJSON();
-    // In LittleFS speichern
     bool saveToLittleFS(const char* filename);
-    // Aus LittleFS laden
     bool loadFromLittleFS(const char* filename);
+#endif
+
+    void writeModelDataToCharArray(char output[MODEL_DATA_SIZE]);
+    uint16_t calcCkecksum();
+    void saveToEEPROM(int startAddress);
+    bool loadFromEEPROM(int startAddress);
+    void clearCRCeeprom(int startAddress);
 };

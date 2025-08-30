@@ -45,9 +45,6 @@ bool loadModel(int id, ModelParameters &model) {
     set_var_s_pump_pwr_model(int2char(model.getPumpPwr()));
 
     set_var_s_pressure_drop_hose_break(int2char(model.getPressureDropHoseBreak()));
-    set_var_s_fueling_last(int2char(model.getFuelingLast()));
-    set_var_s_fueling_count(int2char(model.getFuelingCount()));
-    set_var_s_fueling_total(String(model.getFuelingTotal() / 1000.0).c_str());
     set_var_s_max_refuel_time(int2char(model.getMaxRefuelTime()));
     set_var_s_max_defuel_time(int2char(model.getMaxDefuelTime()));
     set_var_s_back_fuel_time(int2char(model.getBackFuelTime()));
@@ -243,9 +240,6 @@ void btnModelSaveClick(lv_obj_t *objLoadedModel, lv_obj_t *objModelPlus, ModelPa
     model.setTankType((TankTypeEnum)get_var_i_tank_type_model());
     model.setPumpPwr(getValue(get_var_s_pump_pwr_model(), 60, 25, 100));
     model.setPressureDropHoseBreak(getValue(get_var_s_pressure_drop_hose_break(), 0, 0, 255));
-    model.setFuelingLast(atoi(get_var_s_fueling_last()));
-    model.setFuelingCount(atoi(get_var_s_fueling_count()));
-    model.setFuelingTotal(String(get_var_s_fueling_total()).toFloat() * 1000);
     model.setMaxRefuelTime(atoi(get_var_s_max_refuel_time()));
     model.setMaxDefuelTime(atoi(get_var_s_max_defuel_time()));
     model.setBackFuelTime(atoi(get_var_s_back_fuel_time()));
@@ -347,9 +341,6 @@ void viewModelParameters(TankTypeEnum tankType) {
     set_var_b_hide_mod_hopper_pressure(false);
     set_var_b_hide_mod_pump_stop_hopper_pressure_diff(false);
 
-    set_var_b_hide_mod_fueling_last(false);
-    set_var_b_hide_mod_fueling_count(false);
-    set_var_b_hide_mod_fueling_total(false);
     // Beutel Informationen ausblenden
     set_var_b_hide_mod_bag_info(true);
 
@@ -365,9 +356,6 @@ void viewModelParameters(TankTypeEnum tankType) {
             set_var_b_hide_mod_hopper_pressure(true);
             set_var_b_hide_mod_pump_stop_hopper_pressure_diff(true);
 
-            set_var_b_hide_mod_fueling_last(true);
-            set_var_b_hide_mod_fueling_count(true);
-            set_var_b_hide_mod_fueling_total(true);
             // Beutel Informationen einblenden
             set_var_b_hide_mod_bag_info(false);
             break;
@@ -380,18 +368,10 @@ void viewModelParameters(TankTypeEnum tankType) {
 
             set_var_b_hide_mod_hopper_pressure(true);
             set_var_b_hide_mod_pump_stop_hopper_pressure_diff(true);
-
-            set_var_b_hide_mod_fueling_last(true);
-            set_var_b_hide_mod_fueling_count(true);
-            set_var_b_hide_mod_fueling_total(true);
             break;
 
         case TANK_2TANK:
             set_var_b_hide_mod_air_removal_time(true);
-
-            set_var_b_hide_mod_fueling_last(true);
-            set_var_b_hide_mod_fueling_count(true);
-            set_var_b_hide_mod_fueling_total(true);
             break;
     }
 }

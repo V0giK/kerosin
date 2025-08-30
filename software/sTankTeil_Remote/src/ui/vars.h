@@ -83,16 +83,13 @@ enum FlowGlobalVariables {
     FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_PUMP_STOP_PRESSURE_EMPTY = 65,
     FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_HOPPER_PRESSURE = 66,
     FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_PUMP_STOP_HOPPER_PRESSURE_DIFF = 67,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_FUELING_LAST = 68,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_FUELING_COUNT = 69,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_FUELING_TOTAL = 70,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_BAG_INFO = 71,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_PUMP_SAVE_MOD_TO_CONTROLLER = 72,
-    FLOW_GLOBAL_VARIABLE_S_AKKU_VOLT = 73,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_BOX_START_ERROR = 74,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_WAIT = 75,
-    FLOW_GLOBAL_VARIABLE_S_AKKU_VOLT_MESSURE = 76,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_CONT_CALIB_VOLT = 77
+    FLOW_GLOBAL_VARIABLE_B_HIDE_MOD_BAG_INFO = 68,
+    FLOW_GLOBAL_VARIABLE_B_HIDE_PUMP_SAVE_MOD_TO_CONTROLLER = 69,
+    FLOW_GLOBAL_VARIABLE_S_AKKU_VOLT = 70,
+    FLOW_GLOBAL_VARIABLE_B_HIDE_BOX_START_ERROR = 71,
+    FLOW_GLOBAL_VARIABLE_B_HIDE_WAIT = 72,
+    FLOW_GLOBAL_VARIABLE_S_AKKU_VOLT_MESSURE = 73,
+    FLOW_GLOBAL_VARIABLE_B_HIDE_CONT_CALIB_VOLT = 74
 };
 
 // Native global variables
@@ -233,12 +230,6 @@ extern bool get_var_b_hide_mod_hopper_pressure();
 extern void set_var_b_hide_mod_hopper_pressure(bool value);
 extern bool get_var_b_hide_mod_pump_stop_hopper_pressure_diff();
 extern void set_var_b_hide_mod_pump_stop_hopper_pressure_diff(bool value);
-extern bool get_var_b_hide_mod_fueling_last();
-extern void set_var_b_hide_mod_fueling_last(bool value);
-extern bool get_var_b_hide_mod_fueling_count();
-extern void set_var_b_hide_mod_fueling_count(bool value);
-extern bool get_var_b_hide_mod_fueling_total();
-extern void set_var_b_hide_mod_fueling_total(bool value);
 extern bool get_var_b_hide_mod_bag_info();
 extern void set_var_b_hide_mod_bag_info(bool value);
 extern bool get_var_b_hide_pump_save_mod_to_controller();

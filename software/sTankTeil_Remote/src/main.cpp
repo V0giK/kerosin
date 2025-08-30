@@ -38,6 +38,8 @@
 #include "displayConfig.h" // LVGL Display-Konfiguration
 #include "pumpControl.h" // Pumpensteuerung
 #include "inputHandlers.h" // Neue Includes für die Input Handler
+#include <WiFi.h>
+#include <esp_bt.h>
 
 // Konstanten für optimale Timing-Intervalle
 const uint32_t UART_CHECK_INTERVAL = 10;     // 100Hz für UART
@@ -140,6 +142,11 @@ void printSystemSettings() {
 }
 
 void setup() {
+    // Disable WiFi and Bluetooth to ensure they are not active
+    WiFi.mode(WIFI_OFF);
+    WiFi.disconnect(true);
+    btStop();
+
     // Initialize serial communication first
     Serial.begin(115200);
     uartCom.begin(9600); // 19200
@@ -256,6 +263,8 @@ void loop() {
         ui_tick();
         uartCom.tick();
         delay(50);
+        // Backup-Webserver weiter bedienen, falls aktiv
+        handleBackupServerLoop();
         return; // Skip the rest of the loop
     }
 
@@ -287,6 +296,9 @@ void loop() {
         //checkSystemStatus();    // Prüfe System Parameter
         esp_task_wdt_reset();  // Reset Watchdog
     }
+
+    // Backup-Webserver bedienen, falls aktiv
+    handleBackupServerLoop();
 
     // Yield für andere Tasks
     vTaskDelay(1);

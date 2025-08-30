@@ -16,5 +16,5 @@
  */
 
 #include "defines.h"
-#include "Functions.h"
+#include "functions.h"
 

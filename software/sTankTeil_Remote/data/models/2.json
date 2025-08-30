@@ -4,9 +4,6 @@
     "menge": 0,
     "pumpPwr": 82,
     "pressureDropHoseBreak": 0,
-    "fuelingLast": 0,
-    "fuelingCount": 0,
-    "fuelingTotal": 998909001,
 
     "maxRefuelTime": 240,
     "maxDefuelTime": 240,
