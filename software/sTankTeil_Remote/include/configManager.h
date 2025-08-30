@@ -10,7 +10,6 @@ struct Config {
     int flowTicks;
     int pressureAvg;
     int akkuMinV;
-    int akkuFactor;
     int sysPowerOffTime;
     int pumpPwrManu;
     int pumpPwrCalib;

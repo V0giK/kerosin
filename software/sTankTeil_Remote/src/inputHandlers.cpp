@@ -398,14 +398,6 @@ void handleButtonClick() {
                 }
                 go2screenPrev();
                 break;
-            case BTN_MODEL_RESET_TANKCOUNT:
-                model.setFuelingCount(0);
-                set_var_s_fueling_count("0");
-                break;
-            case BTN_MODEL_RESET_TOTAL:
-                model.setFuelingTotal(0);
-                set_var_s_fueling_total("0");
-                break;
             case BTN_MODEL_DELETE:
                 if(DEBUG) Serial.println("BTN_MODEL_DELETE clicked");
                 if (!objLoadedModel) {

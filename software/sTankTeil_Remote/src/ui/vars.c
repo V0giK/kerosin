@@ -84,9 +84,6 @@ bool b_hide_mod_pump_stop_pressure_diff;
 bool b_hide_mod_pump_stop_pressure_empty;
 bool b_hide_mod_hopper_pressure;
 bool b_hide_mod_pump_stop_hopper_pressure_diff;
-bool b_hide_mod_fueling_last;
-bool b_hide_mod_fueling_count;
-bool b_hide_mod_fueling_total;
 bool b_hide_mod_bag_info;
 
 bool b_hide_pump_save_mod_to_controller;
@@ -680,30 +677,6 @@ bool get_var_b_hide_mod_pump_stop_hopper_pressure_diff() {
 
 void set_var_b_hide_mod_pump_stop_hopper_pressure_diff(bool value) {
     b_hide_mod_pump_stop_hopper_pressure_diff = value;
-}
-
-bool get_var_b_hide_mod_fueling_last() {
-    return b_hide_mod_fueling_last;
-}
-
-void set_var_b_hide_mod_fueling_last(bool value) {
-    b_hide_mod_fueling_last = value;
-}
-
-bool get_var_b_hide_mod_fueling_count() {
-    return b_hide_mod_fueling_count;
-}
-
-void set_var_b_hide_mod_fueling_count(bool value) {
-    b_hide_mod_fueling_count = value;
-}
-
-bool get_var_b_hide_mod_fueling_total() {
-    return b_hide_mod_fueling_total;
-}
-
-void set_var_b_hide_mod_fueling_total(bool value) {
-    b_hide_mod_fueling_total = value;
 }
 
 bool get_var_b_hide_mod_bag_info() {
