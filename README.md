@@ -12,7 +12,7 @@
 
 Die Steuerungseinheit ("Controller") befindet sich am Tank. Eine zweite Einheit ("Remote") mit Touchdisplay zeigt Messdaten an und löst Aktionen aus. Die Kommunikation erfolgt über ein RS-422-Kabel.
 
-Ziel ist eine robuste und automatisierte mit komfortabler Bedienung und sicherer Betankung.
+Ziel ist eine robuste und automatisierte komfortabler Bedienung und sicherer Betankung.
 
 ---
 
