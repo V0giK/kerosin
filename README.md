@@ -10,7 +10,7 @@
 
 **Kerosin – RC Jet Refueling System** ist ein modulares Open-Source-System zur Betankung von Flugmodellen mit Kerosin. Es basiert auf einer Mikrocontroller-Lösung zur Überwachung und Steuerung des Tankvorgangs.
 
-Die Steuerungseinheit ("Controller") befindet sich am Tank. Eine zweite Einheit ("Remote") mit Touchdisplay zeigt Messdaten an und löst Aktionen aus. Die Kommunikation erfolgt über ein RS-422-Kabel.
+Die Steuerungseinheit ("Controller") befindet sich am Tank. Eine zweite Einheit ("Remote") mit Touchdisplay zeigt Messdaten an und löst Aktionen aus. Die Kommunikation erfolgt über RS-422.
 
 Ziel ist eine robuste und automatisierte komfortabler Bedienung und sicherer Betankung.
 
