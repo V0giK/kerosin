@@ -65,31 +65,31 @@ void handleBackupWebServer() {
     lv_obj_t* label1 = lv_label_create(scr);
     lv_label_set_text(label1, "Achtung: WiFi ist jetzt aktiv!");
     lv_obj_set_style_text_color(label1, lv_color_hex(0xFF4444), 0);
-    lv_obj_set_style_text_font(label1, &lv_font_montserrat_24, 0);
+    lv_obj_set_style_text_font(label1, &lv_font_montserrat_30, 0); // Größer
     lv_obj_align(label1, LV_ALIGN_TOP_MID, 0, 40);
 
     lv_obj_t* label2 = lv_label_create(scr);
     lv_label_set_text_fmt(label2, "SSID: %s", ssid.c_str());
     lv_obj_set_style_text_color(label2, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_font(label2, &lv_font_montserrat_18, 0);
+    lv_obj_set_style_text_font(label2, &lv_font_montserrat_24, 0); // Größer
     lv_obj_align(label2, LV_ALIGN_TOP_MID, 0, 100);
 
     lv_obj_t* label3 = lv_label_create(scr);
     lv_label_set_text_fmt(label3, "Passwort: %s", "12345678");
     lv_obj_set_style_text_color(label3, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_font(label3, &lv_font_montserrat_18, 0);
+    lv_obj_set_style_text_font(label3, &lv_font_montserrat_24, 0); // Größer
     lv_obj_align(label3, LV_ALIGN_TOP_MID, 0, 140);
 
     lv_obj_t* label4 = lv_label_create(scr);
     lv_label_set_text_fmt(label4, "IP: %s", WiFi.softAPIP().toString().c_str());
     lv_obj_set_style_text_color(label4, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_font(label4, &lv_font_montserrat_18, 0);
+    lv_obj_set_style_text_font(label4, &lv_font_montserrat_24, 0); // Größer
     lv_obj_align(label4, LV_ALIGN_TOP_MID, 0, 180);
 
     lv_obj_t* label5 = lv_label_create(scr);
     lv_label_set_text(label5, "WiFi beenden: Tankstation ausschalten!");
     lv_obj_set_style_text_color(label5, lv_color_hex(0xFFDD44), 0);
-    lv_obj_set_style_text_font(label5, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label5, &lv_font_montserrat_20, 0); // Größer
     lv_obj_align(label5, LV_ALIGN_BOTTOM_MID, 0, -40);
 
     lv_scr_load(scr);

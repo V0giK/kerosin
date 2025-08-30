@@ -704,30 +704,6 @@
         "native": false
       },
       {
-        "objID": "b1e01fa7-1d2d-4c0b-e237-3fea67e88ade",
-        "name": "bHideModFuelingLast",
-        "type": "boolean",
-        "defaultValue": "false",
-        "persistent": false,
-        "native": false
-      },
-      {
-        "objID": "083936d8-cad7-4c9a-9984-97c59167d90b",
-        "name": "bHideModFuelingCount",
-        "type": "boolean",
-        "defaultValue": "false",
-        "persistent": false,
-        "native": false
-      },
-      {
-        "objID": "3dcd6c70-7054-4760-d3d6-857d956fc967",
-        "name": "bHideModFuelingTotal",
-        "type": "boolean",
-        "defaultValue": "false",
-        "persistent": false,
-        "native": false
-      },
-      {
         "objID": "c3cfea92-8652-4686-abd1-3cee972d1176",
         "name": "bHideModBagInfo",
         "type": "boolean",
