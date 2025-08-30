@@ -1,4 +1,3 @@
-// helper.h
 /*
  * Hauptprogramm zur Steuerung einer Arduino-basierten Tanklösung
  *

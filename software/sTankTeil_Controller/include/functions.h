@@ -15,6 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "defines.h"
-#include "functions.h"
+#pragma once
 
+void buffer_tick();

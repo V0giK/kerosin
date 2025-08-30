@@ -43,4 +43,3 @@ public:
 };
 
 #endif /* HBRIDGEMOTOR_H */
-
