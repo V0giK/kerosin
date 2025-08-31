@@ -16,6 +16,10 @@
  */
 #include "pumpFunctions.h"
 
+// Neue Timer-Variablen
+unsigned long refuelEndTime = 0;
+unsigned long defuelEndTime = 0;
+
 void setTankSequence(uint8_t pump_ctr, uint8_t tanktype) {
   pumpSeq.setLastPumpCtr(pump_ctr);
   switch(pump_ctr) {
@@ -78,16 +82,36 @@ void refuellAction()
       {
         // starten
         el->status = true;
-        //flowSensor.resetTotalFlow();        // getankte Menge nullen
         flowSensor.setFilling(true);
         pump.forwardRamp(model.getPumpPwr());   // Pumpe starten
         remoteCom.sendData('W', COM_ID_STATUS, "tanken");
         actionTime = millis();
+
+        // Timer für maximale Tankzeit setzen
+        if(model.getMaxRefuelTime() > 0) {
+          refuelEndTime = millis() + (model.getMaxRefuelTime() * 1000UL);
+        } else {
+          refuelEndTime = 0;
+        }
       }
       else
       {
         actionSec = (millis() - actionTime) / 1000;
-        if(DEBUG) { Serial.println(actionSec); delay(10); }
+
+        // Verbleibende Sekunden berechnen und senden
+        if(refuelEndTime > 0) {
+          long remaining = (refuelEndTime > millis()) ? (refuelEndTime - millis()) / 1000 : 0;
+          remoteCom.sendData('W', COM_ID_MAX_REFUEL_TIME, String(remaining).c_str());
+          // Wenn Zeit abgelaufen, Vorgang stoppen
+          if(remaining == 0) {
+            pump.stop();
+            stopTankSequence(); // Vorgang beenden, nicht auf das nächste Element wechseln
+            remoteCom.sendData('W', COM_ID_STATUS, "Tankzeit abgelaufen");
+            remoteCom.sendData('W', COM_ID_PUMP_CONTROL, String(CTR_STOP).c_str(), true);
+            buzzer.playNegativeTone();
+            return;
+          }
+        }
 
         /* Ende Betanken prüfen */
         // Pressure - MessureDelay vorbei
@@ -167,21 +191,42 @@ void defuellAction()
       {
         // starten
         el->status = true;
-        flowSensor.resetTotalFlow();        // getankte Menge nullen
+        flowSensor.resetTotalFlow();
         if(pumpSeq.isLastPumpCtr(CTR_ENTTANKEN)){
           flowSensor.setFilling(true);
         }else{
-            flowSensor.setFilling(false);
+          flowSensor.setFilling(false);
         }
-        pump.backwardRamp(model.getPumpPwr());   // Pumpe starten
+        pump.backwardRamp(model.getPumpPwr());
         remoteCom.sendData('W', COM_ID_STATUS, "entanken");
         actionTime = millis();
         emptyTime = 0;
+
+        // Timer für maximale Enttankzeit setzen
+        if(model.getMaxDefuelTime() > 0) {
+          defuelEndTime = millis() + (model.getMaxDefuelTime() * 1000UL);
+        } else {
+          defuelEndTime = 0;
+        }
       }
       else
       {
         actionSec = (millis() - actionTime) / 1000;
-        if(DEBUG) { Serial.println(actionSec); delay(10); }
+
+        // Verbleibende Sekunden berechnen und senden
+        if(defuelEndTime > 0) {
+          long remaining = (defuelEndTime > millis()) ? (defuelEndTime - millis()) / 1000 : 0;
+          remoteCom.sendData('W', COM_ID_MAX_DEFUEL_TIME, String(remaining).c_str());
+          // Wenn Zeit abgelaufen, Vorgang stoppen
+          if(remaining == 0) {
+            pump.stop();
+            stopTankSequence(); // Vorgang beenden, nicht auf das nächste Element wechseln
+            remoteCom.sendData('W', COM_ID_STATUS, "Enttankzeit abgelaufen");
+            remoteCom.sendData('W', COM_ID_PUMP_CONTROL, String(CTR_STOP).c_str(), true);
+            buzzer.playNegativeTone();
+            return;
+          }
+        }
 
         /* Ende Enttanken prüfen */
 

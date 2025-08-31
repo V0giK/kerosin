@@ -151,6 +151,7 @@ void handleScreenFlags() {
 
     // UI updates
     set_var_i_fuel_ml(0);
+    set_var_s_rest_tank_time("--- s");
     lv_scale_set_range(objects.scale_ml, 0, model.getMaxRefuelMl());
     lv_bar_set_range(objects.bar_ml, 0, model.getMaxRefuelMl());
     set_var_s_cut_off_ml(int2char(model.getMaxRefuelMl(), LBL_POSTFIX_ML));

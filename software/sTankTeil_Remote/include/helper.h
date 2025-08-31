@@ -34,6 +34,7 @@
 #define POSTFIX_PROZENT " %"
 #define POSTFIX_ML      " ml"
 #define POSTFIX_MBAR    " mbar"
+#define POSTFIX_S       " s"
 
 #define BUFFER_LENGTH 90
 extern char buffer[BUFFER_LENGTH];

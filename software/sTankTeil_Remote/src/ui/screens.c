@@ -2985,11 +2985,12 @@ void create_screen_pump() {
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
+                    objects.obj61 = obj;
                     lv_obj_set_pos(obj, 198, 336);
                     lv_obj_set_size(obj, 157, LV_SIZE_CONTENT);
                     add_style_label_style(obj);
                     lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    lv_label_set_text(obj, "--- s");
+                    lv_label_set_text(obj, "");
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
@@ -3000,7 +3001,7 @@ void create_screen_pump() {
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
-                    objects.obj61 = obj;
+                    objects.obj62 = obj;
                     lv_obj_set_pos(obj, 198, 365);
                     lv_obj_set_size(obj, 157, LV_SIZE_CONTENT);
                     add_style_label_style(obj);
@@ -3016,7 +3017,7 @@ void create_screen_pump() {
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
-                    objects.obj62 = obj;
+                    objects.obj63 = obj;
                     lv_obj_set_pos(obj, 198, 245);
                     lv_obj_set_size(obj, 157, LV_SIZE_CONTENT);
                     add_style_label_style(obj);
@@ -3032,7 +3033,7 @@ void create_screen_pump() {
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
-                    objects.obj63 = obj;
+                    objects.obj64 = obj;
                     lv_obj_set_pos(obj, 198, 273);
                     lv_obj_set_size(obj, 157, LV_SIZE_CONTENT);
                     add_style_label_style(obj);
@@ -3060,7 +3061,7 @@ void create_screen_pump() {
                 lv_obj_t *parent_obj = obj;
                 {
                     lv_obj_t *obj = lv_imagebutton_create(parent_obj);
-                    objects.obj64 = obj;
+                    objects.obj65 = obj;
                     lv_obj_set_pos(obj, 330, 5);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, 40);
                     lv_imagebutton_set_src(obj, LV_IMAGEBUTTON_STATE_RELEASED, NULL, &img_oil, NULL);
@@ -3069,7 +3070,7 @@ void create_screen_pump() {
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
-                    objects.obj65 = obj;
+                    objects.obj66 = obj;
                     lv_obj_set_pos(obj, 0, -93);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     add_style_label_model_style(obj);
@@ -3084,7 +3085,7 @@ void create_screen_pump() {
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);
-                    objects.obj66 = obj;
+                    objects.obj67 = obj;
                     lv_obj_set_pos(obj, 198, 217);
                     lv_obj_set_size(obj, 157, LV_SIZE_CONTENT);
                     add_style_label_style(obj);
@@ -3214,7 +3215,7 @@ void tick_screen_pump() {
         }
     }
     {
-        const char *new_val = get_var_s_tank_type();
+        const char *new_val = get_var_s_rest_tank_time();
         const char *cur_val = lv_label_get_text(objects.obj61);
         if (strcmp(new_val, cur_val) != 0) {
             tick_value_change_obj = objects.obj61;
@@ -3223,7 +3224,7 @@ void tick_screen_pump() {
         }
     }
     {
-        const char *new_val = get_var_s_fuel_mbar();
+        const char *new_val = get_var_s_tank_type();
         const char *cur_val = lv_label_get_text(objects.obj62);
         if (strcmp(new_val, cur_val) != 0) {
             tick_value_change_obj = objects.obj62;
@@ -3232,11 +3233,20 @@ void tick_screen_pump() {
         }
     }
     {
-        const char *new_val = get_var_s_fuel_diff_mbar();
+        const char *new_val = get_var_s_fuel_mbar();
         const char *cur_val = lv_label_get_text(objects.obj63);
         if (strcmp(new_val, cur_val) != 0) {
             tick_value_change_obj = objects.obj63;
             lv_label_set_text(objects.obj63, new_val);
+            tick_value_change_obj = NULL;
+        }
+    }
+    {
+        const char *new_val = get_var_s_fuel_diff_mbar();
+        const char *cur_val = lv_label_get_text(objects.obj64);
+        if (strcmp(new_val, cur_val) != 0) {
+            tick_value_change_obj = objects.obj64;
+            lv_label_set_text(objects.obj64, new_val);
             tick_value_change_obj = NULL;
         }
     }
@@ -3252,29 +3262,29 @@ void tick_screen_pump() {
     }
     {
         bool new_val = get_var_b_hide_pump_save_mod_to_controller();
-        bool cur_val = lv_obj_has_flag(objects.obj64, LV_OBJ_FLAG_HIDDEN);
+        bool cur_val = lv_obj_has_flag(objects.obj65, LV_OBJ_FLAG_HIDDEN);
         if (new_val != cur_val) {
-            tick_value_change_obj = objects.obj64;
-            if (new_val) lv_obj_add_flag(objects.obj64, LV_OBJ_FLAG_HIDDEN);
-            else lv_obj_clear_flag(objects.obj64, LV_OBJ_FLAG_HIDDEN);
+            tick_value_change_obj = objects.obj65;
+            if (new_val) lv_obj_add_flag(objects.obj65, LV_OBJ_FLAG_HIDDEN);
+            else lv_obj_clear_flag(objects.obj65, LV_OBJ_FLAG_HIDDEN);
             tick_value_change_obj = NULL;
         }
     }
     {
         const char *new_val = get_var_s_fuel_ml();
-        const char *cur_val = lv_label_get_text(objects.obj65);
+        const char *cur_val = lv_label_get_text(objects.obj66);
         if (strcmp(new_val, cur_val) != 0) {
-            tick_value_change_obj = objects.obj65;
-            lv_label_set_text(objects.obj65, new_val);
+            tick_value_change_obj = objects.obj66;
+            lv_label_set_text(objects.obj66, new_val);
             tick_value_change_obj = NULL;
         }
     }
     {
         const char *new_val = get_var_s_status();
-        const char *cur_val = lv_label_get_text(objects.obj66);
+        const char *cur_val = lv_label_get_text(objects.obj67);
         if (strcmp(new_val, cur_val) != 0) {
-            tick_value_change_obj = objects.obj66;
-            lv_label_set_text(objects.obj66, new_val);
+            tick_value_change_obj = objects.obj67;
+            lv_label_set_text(objects.obj67, new_val);
             tick_value_change_obj = NULL;
         }
     }

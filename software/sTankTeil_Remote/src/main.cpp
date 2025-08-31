@@ -53,7 +53,7 @@ static uint32_t lastUiUpdate = 0;
 static uint32_t lastStatusCheck = 0;
 
 // Debug-Ausgabe steuern
-const bool DEBUG = false;
+const bool DEBUG = true;
 //LV_LOG_USER("dfg");
 
 // Setup constants
