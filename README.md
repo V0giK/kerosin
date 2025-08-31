@@ -30,12 +30,6 @@ Ziel ist eine robuste und automatisierte komfortabler Bedienung und sicherer Bet
 
 ---
 
-## ToDo
-
-- Versionsinformationen von Controller und Remote am Touchdisplay mit anzeigen (Prio: nice to have)
-
----
-
 ## 📂 Projektstruktur
 
 ```
