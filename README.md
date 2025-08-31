@@ -32,7 +32,6 @@ Ziel ist eine robuste und automatisierte komfortabler Bedienung und sicherer Bet
 
 ## ToDo
 
-- Be/Enttankung bei Erreichen der Abschaltzeit beenden (Prio: nice to have)
 - Versionsinformationen von Controller und Remote am Touchdisplay mit anzeigen (Prio: nice to have)
 
 ---
