@@ -306,6 +306,9 @@ void onRead(int16_t id) {
     case COM_ID_SYSTEM_OFF:
       remoteCom.sendData('W', id, String(configManager.getSystemabschaltungSekunden()).c_str());
       break;
+    case COM_ID_FIRMWARE_VERSION:
+      remoteCom.sendData('W', id, SW_VERSION);
+      break;
     default:
       //
       hasActivity = false;

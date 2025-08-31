@@ -90,7 +90,9 @@ enum FlowGlobalVariables {
     FLOW_GLOBAL_VARIABLE_B_HIDE_WAIT = 72,
     FLOW_GLOBAL_VARIABLE_S_AKKU_VOLT_MESSURE = 73,
     FLOW_GLOBAL_VARIABLE_B_HIDE_CONT_CALIB_VOLT = 74,
-    FLOW_GLOBAL_VARIABLE_S_REST_TANK_TIME = 75
+    FLOW_GLOBAL_VARIABLE_S_REST_TANK_TIME = 75,
+    FLOW_GLOBAL_VARIABLE_S_FIRMWARE_VERSION_CONTROLLER = 76,
+    FLOW_GLOBAL_VARIABLE_S_FIRMWARE_VERSION_REMOTE = 77
 };
 
 // Native global variables
@@ -247,6 +249,10 @@ extern bool get_var_b_hide_cont_calib_volt();
 extern void set_var_b_hide_cont_calib_volt(bool value);
 extern const char *get_var_s_rest_tank_time();
 extern void set_var_s_rest_tank_time(const char *value);
+extern const char *get_var_s_firmware_version_controller();
+extern void set_var_s_firmware_version_controller(const char *value);
+extern const char *get_var_s_firmware_version_remote();
+extern void set_var_s_firmware_version_remote(const char *value);
 
 
 #ifdef __cplusplus

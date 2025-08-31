@@ -31,6 +31,8 @@ typedef struct _objects_t {
     lv_obj_t *txt_akku_min_v;
     lv_obj_t *txt_pump_pwr_calib;
     lv_obj_t *txt_pump_pwr_manu;
+    lv_obj_t *txt_firmware_version_controller;
+    lv_obj_t *txt_firmware_version_remote;
     lv_obj_t *cont_keyboard_settings;
     lv_obj_t *cont_keyboard_settings__kb_keyboard;
     lv_obj_t *cont_numpad_settings;

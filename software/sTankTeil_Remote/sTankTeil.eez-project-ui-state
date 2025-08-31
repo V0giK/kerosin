@@ -1,8 +1,8 @@
 {
   "navigation": {
-    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/5",
+    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/0",
     "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/6",
-    "selectedGlobalVariableObject": "[sTankTeil.eez-project]:/variables/globalVariables/75",
+    "selectedGlobalVariableObject": "[sTankTeil.eez-project]:/variables/globalVariables/77",
     "selectedStyleObject": "[sTankTeil.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[sTankTeil.eez-project]:/bitmaps/0",
     "subnavigationSelectedItems": {
@@ -213,16 +213,15 @@
                 {
                   "type": "tab",
                   "id": "#c086ff6e-eb98-4790-85c3-56eac588aec2",
-                  "name": "Pump",
+                  "name": "SettingsSystem",
                   "component": "editor",
                   "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/userPages/5",
+                    "objectPath": "[sTankTeil.eez-project]:/userPages/0",
                     "permanent": false
                   },
                   "icon": "svg:page"
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "row",
@@ -243,7 +242,8 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -998,7 +998,8 @@
             "10": {},
             "14": {},
             "15": {},
-            "21": {},
+            "24": {},
+            "25": {},
             "$selected": true
           },
           "2": {}
@@ -1339,10 +1340,7 @@
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "TEXT",
-    "BORDER",
-    "IMAGE",
-    "POSITION AND SIZE"
+    "BACKGROUND"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
