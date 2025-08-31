@@ -42,6 +42,7 @@ bool b_hide_cont_flow_calibrate;                    // Container Kalibrierung Dr
 char i_calib_flow_sensor[100] = { 0 };              // Flowsensor Kalibrierung in Pulse pro Liter
 char s_fuel_mbar[100] = { 0 };                      // Tankdruck
 char s_fuel_diff_mbar[100] = { 0 };                 // Differenzdruck
+char s_rest_tank_time[100] = { 0 };                 // Resttankzeit
 
 // Modell Settings
 bool b_hide_dialog_save_model;                      // Modell Speichern Dialog hide/show
@@ -735,4 +736,13 @@ bool get_var_b_hide_cont_calib_volt() {
 
 void set_var_b_hide_cont_calib_volt(bool value) {
     b_hide_cont_calib_volt = value;
+}
+
+const char *get_var_s_rest_tank_time() {
+    return s_rest_tank_time;
+}
+
+void set_var_s_rest_tank_time(const char *value) {
+    strncpy(s_rest_tank_time, value, sizeof(s_rest_tank_time) / sizeof(char));
+    s_rest_tank_time[sizeof(s_rest_tank_time) / sizeof(char) - 1] = 0;
 }

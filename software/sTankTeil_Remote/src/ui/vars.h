@@ -89,7 +89,8 @@ enum FlowGlobalVariables {
     FLOW_GLOBAL_VARIABLE_B_HIDE_BOX_START_ERROR = 71,
     FLOW_GLOBAL_VARIABLE_B_HIDE_WAIT = 72,
     FLOW_GLOBAL_VARIABLE_S_AKKU_VOLT_MESSURE = 73,
-    FLOW_GLOBAL_VARIABLE_B_HIDE_CONT_CALIB_VOLT = 74
+    FLOW_GLOBAL_VARIABLE_B_HIDE_CONT_CALIB_VOLT = 74,
+    FLOW_GLOBAL_VARIABLE_S_REST_TANK_TIME = 75
 };
 
 // Native global variables
@@ -244,6 +245,8 @@ extern const char *get_var_s_akku_volt_messure();
 extern void set_var_s_akku_volt_messure(const char *value);
 extern bool get_var_b_hide_cont_calib_volt();
 extern void set_var_b_hide_cont_calib_volt(bool value);
+extern const char *get_var_s_rest_tank_time();
+extern void set_var_s_rest_tank_time(const char *value);
 
 
 #ifdef __cplusplus

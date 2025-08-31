@@ -77,6 +77,18 @@ void handlePumpControl() {
         set_var_s_pump_pwr(int2char(get_var_i_pump_pwr(), LBL_POSTFIX_PROZENT));
         uartCom.sendData('W', COM_ID_PUMP_PWR, String(get_var_i_pump_pwr()), true);
     }
+    // Ergänzung: Verbleibende Zeit empfangen und anzeigen
+    String uartValue;
+    if(uartCom.getRequestResponse(COM_ID_MAX_REFUEL_TIME, uartValue)) {
+        if(!uartValue.isEmpty()) {
+            set_var_s_rest_tank_time((uartValue + POSTFIX_S).c_str());
+        }
+    }
+    if(uartCom.getRequestResponse(COM_ID_MAX_DEFUEL_TIME, uartValue)) {
+        if(!uartValue.isEmpty()) {
+            set_var_s_rest_tank_time((uartValue + POSTFIX_S).c_str());
+        }
+    }
 }
 
 void handleManualPump() {

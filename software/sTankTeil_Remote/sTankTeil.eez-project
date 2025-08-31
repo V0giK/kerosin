@@ -759,6 +759,14 @@
         "defaultValue": "false",
         "persistent": false,
         "native": false
+      },
+      {
+        "objID": "d340bd5d-6ac6-4a04-e505-76b662e56fbd",
+        "name": "sRestTankTime",
+        "type": "string",
+        "defaultValue": "\"\"",
+        "persistent": false,
+        "native": false
       }
     ],
     "structures": [],
@@ -9761,10 +9769,11 @@
                   },
                   "group": "",
                   "groupIndex": 0,
-                  "text": "--- s",
-                  "textType": "literal",
+                  "text": "sRestTankTime",
+                  "textType": "expression",
                   "longMode": "WRAP",
-                  "recolor": false
+                  "recolor": false,
+                  "previewValue": "--- s"
                 },
                 {
                   "objID": "b0387bc3-2f4a-40f2-ae34-38db3a208424",
