@@ -17,6 +17,8 @@ char s_pressure_avg[100] = { 0 };                   // Anzahl Messwerte für Mit
 char s_flow_ticks[100] = { 0 };                     // Flowsensor Anzahl Impulse pro Liter
 char s_akku_volt_messure[100] = { 0 };              // gemessene Akkuspannung (zur kalibrierung)
 bool b_hide_cont_calib_volt;                        // Kalibrierung Spannung hide/show
+char s_firmware_version_controller[100] = { 0 };    // Firmware-Version des Controllers
+char s_firmware_version_remote[100] = { 0 };        // Firmware-Version der Fernbedienung
 
 // Allgemeine für Displaysteuerung
 char s_screen_titel[100] = { 0 };                   // Seitentitel
@@ -745,4 +747,22 @@ const char *get_var_s_rest_tank_time() {
 void set_var_s_rest_tank_time(const char *value) {
     strncpy(s_rest_tank_time, value, sizeof(s_rest_tank_time) / sizeof(char));
     s_rest_tank_time[sizeof(s_rest_tank_time) / sizeof(char) - 1] = 0;
+}
+
+const char *get_var_s_firmware_version_controller() {
+    return s_firmware_version_controller;
+}
+
+void set_var_s_firmware_version_controller(const char *value) {
+    strncpy(s_firmware_version_controller, value, sizeof(s_firmware_version_controller) / sizeof(char));
+    s_firmware_version_controller[sizeof(s_firmware_version_controller) / sizeof(char) - 1] = 0;
+}
+
+const char *get_var_s_firmware_version_remote() {
+    return s_firmware_version_remote;
+}
+
+void set_var_s_firmware_version_remote(const char *value) {
+    strncpy(s_firmware_version_remote, value, sizeof(s_firmware_version_remote) / sizeof(char));
+    s_firmware_version_remote[sizeof(s_firmware_version_remote) / sizeof(char) - 1] = 0;
 }

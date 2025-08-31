@@ -331,6 +331,10 @@ void UartCommunication::processReceivedData(const String &data) {
                 set_var_s_akku_volt((value + " V").c_str());
                 break;
 
+            case COM_ID_FIRMWARE_VERSION:
+                set_var_s_firmware_version_controller(value.c_str());
+                break;
+
             case COM_ID_MC_RESET:
                 if(value.equals("99")) { 
                     tft.setBrightness(0);

@@ -85,6 +85,7 @@ enum UartCodesEnum : int16_t {
     COM_ID_FLOWCALIBRATE                  = 43,
     COM_ID_TANKTYPE                       = 44,
     COM_ID_BROADCAST                      = 45,
+    COM_ID_FIRMWARE_VERSION               = 46,
 
     COM_ID_MC_RESET                       = 99
 };

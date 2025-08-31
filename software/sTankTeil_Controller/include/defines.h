@@ -92,6 +92,7 @@
 #define COM_ID_FLOWCALIBRATE                  43
 #define COM_ID_TANKTYPE                       44
 #define COM_ID_BROADCAST                      45
+#define COM_ID_FIRMWARE_VERSION               46
 
 #define COM_ID_MC_RESET                       99
 
@@ -119,3 +120,5 @@
 #define DEFUELL_1TANK      "3"
 #define REFUELL_2TANKS     "1,5,4"
 #define DEFUELL_2TANKS     "3"
+
+#define SW_VERSION "1.0.0"
