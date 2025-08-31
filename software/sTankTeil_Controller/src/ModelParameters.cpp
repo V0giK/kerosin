@@ -16,9 +16,6 @@ ModelParameters::ModelParameters()
       menge(0),
       pumpPwr(0),
       pressureDropHoseBreak(0),
-      fuelingLast(0),
-      fuelingCount(0),
-      fuelingTotal(0),
       maxRefuelTime(0),
       maxDefuelTime(0),
       backFuelTime(0),
@@ -38,9 +35,6 @@ int ModelParameters::getTankType() const { return tankType; }
 int ModelParameters::getMenge() const { return menge; }
 int ModelParameters::getPumpPwr() const { return pumpPwr; }
 int ModelParameters::getPressureDropHoseBreak() const { return pressureDropHoseBreak; }
-int ModelParameters::getFuelingLast() const { return fuelingLast; }
-int ModelParameters::getFuelingCount() const { return fuelingCount; }
-int ModelParameters::getFuelingTotal() const { return fuelingTotal; }
 int ModelParameters::getMaxRefuelTime() const { return maxRefuelTime; }
 int ModelParameters::getMaxDefuelTime() const { return maxDefuelTime; }
 int ModelParameters::getBackFuelTime() const { return backFuelTime; }
@@ -60,9 +54,6 @@ void ModelParameters::setTankType(int type) { tankType = type; }
 void ModelParameters::setMenge(int value) { menge = value; }
 void ModelParameters::setPumpPwr(int value) { pumpPwr = value; }
 void ModelParameters::setPressureDropHoseBreak(int value) { pressureDropHoseBreak = value; }
-void ModelParameters::setFuelingLast(int value) { fuelingLast = value; }
-void ModelParameters::setFuelingCount(int value) { fuelingCount = value; }
-void ModelParameters::setFuelingTotal(int value) { fuelingTotal = value; }
 void ModelParameters::setMaxRefuelTime(int value) {  maxRefuelTime = value; }
 void ModelParameters::setMaxDefuelTime(int value) { maxDefuelTime = value; }
 void ModelParameters::setBackFuelTime(int value) { backFuelTime = value; }
@@ -89,12 +80,6 @@ void ModelParameters::printModelParameters() {
     Serial.print("Pump PWR                        "); Serial.println(getPumpPwr());
     delay(10);
     Serial.print("Pressure drop hose break:       "); Serial.println(getPressureDropHoseBreak());
-    delay(10);
-    Serial.print("Fueling last:                   "); Serial.println(getFuelingLast());
-    delay(10);
-    Serial.print("Fueling count:                  "); Serial.println(getFuelingCount());
-    delay(10);
-    Serial.print("Fueling total:                  "); Serial.println(getFuelingTotal());
     delay(10);
     Serial.print("Max refuel time:                "); Serial.println(getMaxRefuelTime());
     delay(10);
@@ -137,9 +122,6 @@ void ModelParameters::fromJSON(const String& json) {
     menge = doc["menge"] | 0;
     pumpPwr = doc["pumpPwr"] | 0;
     pressureDropHoseBreak = doc["pressureDropHoseBreak"] | 0;
-    fuelingLast = doc["fuelingLast"] | 0;
-    fuelingCount = doc["fuelingCount"] | 0;
-    fuelingTotal = doc["fuelingTotal"] | 0;
     maxRefuelTime = doc["maxRefuelTime"] | 0;
     maxDefuelTime = doc["maxDefuelTime"] | 0;
     backFuelTime = doc["backFuelTime"] | 0;
@@ -242,9 +224,6 @@ void ModelParameters::writeModelDataToCharArray(char output[MODEL_DATA_SIZE]) {
     writeIntToBuffer(getMenge(), &output[index]); index += 2;
     writeIntToBuffer(getPumpPwr(), &output[index]); index += 2;
     writeIntToBuffer(getPressureDropHoseBreak(), &output[index]); index += 2;
-    writeIntToBuffer(getFuelingLast(), &output[index]); index += 2;
-    writeIntToBuffer(getFuelingCount(), &output[index]); index += 2;
-    writeIntToBuffer(getFuelingTotal(), &output[index]); index += 2;
     writeIntToBuffer(getMaxRefuelTime(), &output[index]); index += 2;
     writeIntToBuffer(getMaxDefuelTime(), &output[index]); index += 2;
     writeIntToBuffer(getBackFuelTime(), &output[index]); index += 2;
@@ -275,9 +254,6 @@ void ModelParameters::saveToEEPROM(int startAddress) {
     EEPROM.put(address, menge); address += sizeof(menge);
     EEPROM.put(address, pumpPwr); address += sizeof(pumpPwr);
     EEPROM.put(address, pressureDropHoseBreak); address += sizeof(pressureDropHoseBreak);
-    EEPROM.put(address, fuelingLast); address += sizeof(fuelingLast);
-    EEPROM.put(address, fuelingCount); address += sizeof(fuelingCount);
-    EEPROM.put(address, fuelingTotal); address += sizeof(fuelingTotal);
     EEPROM.put(address, maxRefuelTime); address += sizeof(maxRefuelTime);
     EEPROM.put(address, maxDefuelTime); address += sizeof(maxDefuelTime);
     EEPROM.put(address, backFuelTime); address += sizeof(backFuelTime);
@@ -304,9 +280,6 @@ bool ModelParameters::loadFromEEPROM(int startAddress) {
     EEPROM.get(address, menge); address += sizeof(menge);
     EEPROM.get(address, pumpPwr); address += sizeof(pumpPwr);
     EEPROM.get(address, pressureDropHoseBreak); address += sizeof(pressureDropHoseBreak);
-    EEPROM.get(address, fuelingLast); address += sizeof(fuelingLast);
-    EEPROM.get(address, fuelingCount); address += sizeof(fuelingCount);
-    EEPROM.get(address, fuelingTotal); address += sizeof(fuelingTotal);
     EEPROM.get(address, maxRefuelTime); address += sizeof(maxRefuelTime);
     EEPROM.get(address, maxDefuelTime); address += sizeof(maxDefuelTime);
     EEPROM.get(address, backFuelTime); address += sizeof(backFuelTime);
@@ -333,9 +306,6 @@ void ModelParameters::clearCRCeeprom(int startAddress){
     address += sizeof(menge);
     address += sizeof(pumpPwr);
     address += sizeof(pressureDropHoseBreak);
-    address += sizeof(fuelingLast);
-    address += sizeof(fuelingCount);
-    address += sizeof(fuelingTotal);
     address += sizeof(maxRefuelTime);
     address += sizeof(maxDefuelTime);
     address += sizeof(backFuelTime);

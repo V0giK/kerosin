@@ -33,9 +33,6 @@ private:
     int menge;
     int pumpPwr;
     int pressureDropHoseBreak;
-    int fuelingLast;
-    int fuelingCount;
-    int fuelingTotal;
     int maxRefuelTime;
     int maxDefuelTime;
     int backFuelTime;
@@ -64,9 +61,6 @@ public:
     int getMenge() const;
     int getPumpPwr() const;
     int getPressureDropHoseBreak() const;
-    int getFuelingLast() const;
-    int getFuelingCount() const;
-    int getFuelingTotal() const;
     int getMaxRefuelTime() const;
     int getMaxDefuelTime() const;
     int getBackFuelTime() const;
