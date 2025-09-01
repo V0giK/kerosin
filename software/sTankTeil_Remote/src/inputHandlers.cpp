@@ -422,7 +422,7 @@ void handleButtonClick() {
                 set_var_b_hide_dialog_save_model(true);
                 go2screen(SCREEN_ID_MODEL_SELECT);
                 break;
-            case BTN_SYSTEM_SAVE_YES:
+            case BTN_SYSTEM_SAVE_YES: {
                 uartCom.sendData('W', COM_ID_BEEP, (get_var_b_signal()?"1":"0"), true);
                 uartCom.sendData('W', COM_ID_FLOW_TICKS, get_var_s_flow_ticks(), true);
                 uartCom.sendData('W', COM_ID_PRESSURE_AVG, get_var_s_pressure_avg(), true);
@@ -443,17 +443,21 @@ void handleButtonClick() {
                 config.flowTicks = atoi(get_var_s_flow_ticks());
                 config.pressureAvg = atoi(get_var_s_pressure_avg());
                 config.akkuMinV = (int)(atoff(get_var_s_akku_min_v()) * 10);
-                // TODO: Variablen fehlten noch
-                //config.akkuFactor = ???;
-                config.sysPowerOffTime = atoi(get_var_s_sys_power_off_time());
                 config.pumpPwrManu = atoi(get_var_s_pump_pwr_manu());
                 config.pumpPwrCalib = atoi(get_var_s_pump_pwr_calib());
+                // SysPowerOffTime mindestens 60 Sekunden
+                config.sysPowerOffTime = atoi(get_var_s_sys_power_off_time());
+                if(config.sysPowerOffTime < 60 && config.sysPowerOffTime != 0) {
+                    config.sysPowerOffTime = 60;
+                    set_var_s_sys_power_off_time(int2char(config.sysPowerOffTime));
+                }
 
                 saveConfig(config, configFilePath);
 
                 set_var_b_hide_dialog_save_system(true);
                 go2screen(SCREEN_ID_MODEL_SELECT);
                 break;
+            }
             case BTN_SYSTEM_SAVE_NO:
                 set_var_b_hide_dialog_save_system(true);
                 applyConfigToUI(config);
