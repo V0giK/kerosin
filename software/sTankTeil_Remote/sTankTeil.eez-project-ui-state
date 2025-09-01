@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/0",
-    "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/6",
+    "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/1",
     "selectedGlobalVariableObject": "[sTankTeil.eez-project]:/variables/globalVariables/77",
     "selectedStyleObject": "[sTankTeil.eez-project]:/lvglStyles/styles/0",
     "selectedBitmapObject": "[sTankTeil.eez-project]:/bitmaps/0",
@@ -194,34 +194,11 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 61.55352480417755,
-              "selected": 1,
+              "selected": -1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
-              "children": [
-                {
-                  "type": "tab",
-                  "id": "#86740c02-ee2b-464d-a2c4-e088b1c3474b",
-                  "name": "Settings",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/settings",
-                    "subObjectPath": "[sTankTeil.eez-project]:/settings",
-                    "permanent": false
-                  },
-                  "icon": "material:settings"
-                },
-                {
-                  "type": "tab",
-                  "id": "#c086ff6e-eb98-4790-85c3-56eac588aec2",
-                  "name": "SettingsSystem",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[sTankTeil.eez-project]:/userPages/0",
-                    "permanent": false
-                  },
-                  "icon": "svg:page"
-                }
-              ]
+              "children": [],
+              "active": true
             },
             {
               "type": "row",
@@ -242,8 +219,7 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
@@ -1043,10 +1019,10 @@
       "selection": {
         "0": {},
         "1": {},
-        "2": {
+        "2": {},
+        "3": {
           "$selected": true
         },
-        "3": {},
         "4": {}
       },
       "transform": {
@@ -1097,11 +1073,8 @@
       "selection": {
         "0": {
           "0": {},
-          "1": {
-            "1": {},
-            "2": {
-              "$selected": true
-            }
+          "2": {
+            "$selected": true
           }
         }
       },

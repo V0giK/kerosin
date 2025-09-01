@@ -29,7 +29,7 @@
 #include "uartCommunication.h"
 #include "modelParameters.h"
 #include "snakeGame.h"
-// #include "aeroBlocks.h"  // Include the AeroBlocks header
+#include "aeroBlocks.h"  // Include the AeroBlocks header
 #include <esp_task_wdt.h>
 #include "configManager.h" // Include the config manager
 #include "modelManager.h" // Include the model manager
@@ -53,7 +53,7 @@ static uint32_t lastUiUpdate = 0;
 static uint32_t lastStatusCheck = 0;
 
 // Debug-Ausgabe steuern
-const bool DEBUG = true;
+const bool DEBUG = false;
 //LV_LOG_USER("dfg");
 
 // Setup constants
@@ -117,10 +117,13 @@ UartCommunication uartCom(17, 18, DEBUG, 2); // RX = GPIO19, TX = GPIO20
 // Snake
 SnakeGame snakeGame;
 // AeroBlocks
-//AeroBlocks aeroBlocks;
+AeroBlocks aeroBlocks;
 
 // Add missing error state flag
 bool inControllerErrorState = false;
+
+volatile bool g_modelLoadPending = false;
+int g_modelLoadId = 0;
 
 
 

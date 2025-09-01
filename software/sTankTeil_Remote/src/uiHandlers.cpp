@@ -50,9 +50,11 @@ extern volatile bool g_go2settingsModels;
 extern lv_event_t g_go2settingsModelsE;
 extern volatile bool g_unloadModelSettings;
 extern volatile bool g_viewCalibVolt;
+extern volatile bool g_modelLoadPending;
+extern int g_modelLoadId;
 
-static ScreensEnum scrCurScreen = SCREEN_ID_MAIN;
-static ScreensEnum scrPrevScreen = SCREEN_ID_MAIN;
+ScreensEnum scrCurScreen = SCREEN_ID_MAIN;
+ScreensEnum scrPrevScreen = SCREEN_ID_MAIN;
 
 extern "C" {
     void loadScreen(ScreensEnum screen);
@@ -120,6 +122,21 @@ void handleScreenFlags() {
     }
 
     set_var_b_hide_wait(false); // Warte-Kringel an
+    lv_timer_handler();
+    ui_tick();
+    delay(50);
+
+    // Save model ID and set pending flag for next loop
+    g_modelLoadId = id;
+    g_modelLoadPending = true;
+    return; // Exit now, do NOT continue with model loading yet
+  }
+
+  // New: handle model loading in next loop
+  if (g_modelLoadPending) {
+    g_modelLoadPending = false;
+    int id = g_modelLoadId;
+
     set_var_s_screen_titel("Tanken (automatik)");
     set_var_b_hide_model_fuel(false);
     set_var_b_pump_pwr_disabled(true);

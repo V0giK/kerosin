@@ -104,21 +104,21 @@ enum PumpAction {
 };
 
 enum ButtonId {
-    BTN_FLOW_RESET            =  1,
-    BTN_FLOW_SET              =  2,
-    BTN_MODEL_RESET_TANKCOUNT =  3,
-    BTN_MODEL_RESET_TOTAL     =  4,
-    BTN_MODEL_DELETE          =  5,
-    BTN_MODEL_SAVE_YES        =  6,
-    BTN_MODEL_SAVE_NO         =  7,
-    BTN_SYSTEM_SAVE_YES       =  8,
-    BTN_SYSTEM_SAVE_NO        =  9,
-    BTN_MODEL_SAVE2CONTROLLER = 10,
-    BTN_SNAKE_START           = 11,
-    BTN_SNAKE_STOP            = 12,
-    BTN_MODEL_TYPE_CHG        = 13,
-    BTN_SYSTEM_SEND_CALIBVOLT = 14,
-    BTN_SYSTEM_BACKUP         = 15
+    BTN_FLOW_RESET             =  1,
+    BTN_FLOW_SET               =  2,
+    BTN_MODEL_RESET_TANKCOUNT  =  3,
+    BTN_MODEL_RESET_TOTAL      =  4,
+    BTN_MODEL_DELETE           =  5,
+    BTN_MODEL_SAVE_YES         =  6,
+    BTN_MODEL_SAVE_NO          =  7,
+    BTN_SYSTEM_SAVE_YES        =  8,
+    BTN_SYSTEM_SAVE_NO         =  9,
+    BTN_MODEL_SAVE2CONTROLLER  = 10,
+    BTN_HEADER_TITEL_LONGPRESS = 11,
+    BTN_SNAKE_STOP             = 12,
+    BTN_MODEL_TYPE_CHG         = 13,
+    BTN_SYSTEM_SEND_CALIBVOLT  = 14,
+    BTN_SYSTEM_BACKUP          = 15
 };
 
 enum TankTypeEnum {

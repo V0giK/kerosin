@@ -18,6 +18,8 @@
 #include "snakeGame.h"
 #include "main.h"  // Include main.h to get access to the tft object
 #include "esp_task_wdt.h"  // Include ESP Task Watchdog Timer API
+#include "uartCommunication.h"  // Hinzufügen der UartCommunication-Header-Datei
+#include "helper.h"  // Hinzufügen des helper.h Headers für COM_ID_STATUS
 
 SnakeGame::SnakeGame() : 
     snake_length(3), 
@@ -28,13 +30,15 @@ SnakeGame::SnakeGame() :
     game_timer(nullptr), 
     game_over_timer(nullptr),
     animation_timer(nullptr),
-    prev_screen(nullptr), 
+    heartbeat_timer(nullptr),
+    prev_screen(nullptr),
+    uartCom(nullptr),  // Initialisierung des UART-Kommunikationszeigers
     speed(250), 
     score(0),
     high_score(0),
-    head_x(0),  // Initialize head position
+    head_x(0),
     head_y(0),
-    debugEnabled(true)  // Enable debug by default
+    debugEnabled(true)
 {
     // Initialize styles and game parameters
     Serial.println("Snake game constructor called");
@@ -127,6 +131,9 @@ void SnakeGame::start() {
         // Start animation timer with a shorter interval to prevent blocking
         Serial.println("Starting animation timer");
         animation_timer = lv_timer_create(animation_timer_cb, 200, this);
+        
+        // Heartbeat-Timer starten
+        heartbeat_timer = lv_timer_create(heartbeat_timer_cb, 3000, this); // Alle 3 Sekunden
         
         // Reset watchdog to prevent timeout during initialization
         esp_task_wdt_reset();
@@ -784,6 +791,12 @@ void SnakeGame::stop() {
         game_over_timer = nullptr;
     }
     
+    // Heartbeat-Timer stoppen
+    if (heartbeat_timer) {
+        lv_timer_del(heartbeat_timer);
+        heartbeat_timer = nullptr;
+    }
+    
     // Process any pending LVGL operations before screen restoration
     lv_timer_handler();
     delay(10);
@@ -959,4 +972,34 @@ void SnakeGame::reset() {
     esp_task_wdt_reset();
 
     Serial.println("Snake game state reset complete");
+}
+
+// Callback für den Heartbeat-Timer
+void SnakeGame::heartbeat_timer_cb(lv_timer_t* t) {
+    SnakeGame *self = static_cast<SnakeGame *>(t->user_data);
+    self->send_heartbeat();
+}
+
+// Sendet ein Lebenszeichen an den Controller
+void SnakeGame::send_heartbeat() {
+    // Nur senden, wenn das Spiel aktiv ist und UART-Kommunikation verfügbar ist
+    if (game_running && (current_state == STATE_PLAYING || current_state == STATE_START_SCREEN) && uartCom != nullptr) {
+        // Nachrichtenformat: "SN:state,score,difficulty"
+        // SN = Snake, state = 1 für spielend, 0 für Startbildschirm
+        char message[64];
+        int playing = (current_state == STATE_PLAYING) ? 1 : 0;
+        snprintf(message, sizeof(message), "SN:%d,%d,%d", playing, score, (int)current_difficulty);
+        
+        // Senden über UART-Kommunikation mit sendData statt Message
+        // Verwende COM_ID_STATUS (oder einen anderen passenden ID) für Heartbeat-Nachrichten
+        uartCom->sendData('W', COM_ID_STATUS, message, false);
+        
+        if (debugEnabled) Serial.printf("Heartbeat sent: %s\n", message);
+    }
+}
+
+// Neue Methode zum Setzen der UART-Kommunikation
+void SnakeGame::setUartCommunication(UartCommunication* uart) {
+    uartCom = uart;
+    if (debugEnabled) Serial.println("UART Communication set for Snake Game");
 }
