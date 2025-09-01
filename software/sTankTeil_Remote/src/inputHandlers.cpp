@@ -25,6 +25,7 @@
 #include "ui/actions.h"
 #include "snakeGame.h"
 #include "configManager.h" // Add this include for Config type
+#include "aeroBlocks.h"
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ElegantOTA.h>
@@ -337,6 +338,8 @@ extern UartCommunication uartCom;
 extern const char *configFilePath;
 extern const bool DEBUG;
 extern SnakeGame snakeGame;
+extern AeroBlocks aeroBlocks; // Add extern declaration for aeroBlocks
+extern ScreensEnum scrCurScreen; // Add this near the top, after other externs
 
 // Globale Flags
 extern volatile bool g_eventButtonClick;
@@ -467,11 +470,20 @@ void handleButtonClick() {
             case BTN_MODEL_SAVE2CONTROLLER:
                 uartCom.sendData('W', COM_ID_SAVE_MODEL_EEPROM, "5", true);
                 break;
-            case BTN_SNAKE_START:
-                snakeGame.start();
+            case BTN_HEADER_TITEL_LONGPRESS:
+                switch (scrCurScreen) {
+                    case SCREEN_ID_MODEL_SELECT:
+                        snakeGame.start();
+                        break;
+                    case SCREEN_ID_SETTINGS_SYSTEM:
+                        aeroBlocks.init();
+                        aeroBlocks.start();
+                        break;
+                }
                 break;
             case BTN_SNAKE_STOP:
-                snakeGame.stop();
+                //snakeGame.stop();
+                aeroBlocks.stop();
                 break;
             case BTN_MODEL_TYPE_CHG:
                 viewModelParameters((TankTypeEnum) get_var_i_tank_type_model());

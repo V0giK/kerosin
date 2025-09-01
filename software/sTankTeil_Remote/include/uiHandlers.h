@@ -5,6 +5,9 @@
 #include "ui/screens.h" // Add this include for ScreensEnum
 #include "displayConfig.h"
 
+// Export the current screen variable for use in other files
+extern ScreensEnum scrCurScreen;
+
 // Deklaration der Funktion zum Screen-Handling
 void handleScreenFlags();
 void go2screen(ScreensEnum newScreen);
