@@ -473,9 +473,11 @@ void handleButtonClick() {
             case BTN_HEADER_TITEL_LONGPRESS:
                 switch (scrCurScreen) {
                     case SCREEN_ID_MODEL_SELECT:
+                        snakeGame.setUartCommunication(&uartCom); // UART-Kommunikation übergeben
                         snakeGame.start();
                         break;
                     case SCREEN_ID_SETTINGS_SYSTEM:
+                        aeroBlocks.setUartCommunication(&uartCom); // UART-Kommunikation übergeben
                         aeroBlocks.init();
                         aeroBlocks.start();
                         break;

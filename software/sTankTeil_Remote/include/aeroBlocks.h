@@ -22,9 +22,10 @@
 #include <lvgl.h>
 #include <vector>
 #include <algorithm>
+#include "AeroHighScore.h"
 
 // Game constants
-#define AERO_GRID_SIZE 30       // Size of each block in pixels
+#define AERO_GRID_SIZE 20       // Size of each block in pixels (reduced from 30)
 #define AERO_BOARD_WIDTH 10     // Width of the game board in blocks
 #define AERO_BOARD_HEIGHT 20    // Height of the game board in blocks
 #define AERO_NEXT_PIECE_SIZE 4  // Size of the next piece preview
@@ -65,33 +66,21 @@ enum AeroGameState {
     AERO_STATE_PLAYING,
     AERO_STATE_PAUSED,
     AERO_STATE_GAME_OVER,
-    AERO_STATE_HIGH_SCORES
+    AERO_STATE_HIGH_SCORES,
+    AERO_STATE_NAME_ENTRY
 };
 
-// Structure for high score entries
-struct AeroHighScore {
-    int score;
-    int level;
-    int lines;
-    char name[10];
-    
-    // Constructor for initialization
-    AeroHighScore(int s = 0, int lvl = 0, int ln = 0, const char* n = "PILOT") : 
-        score(s), level(lvl), lines(ln) {
-        strncpy(name, n, 9);
-        name[9] = '\0';
-    }
-    
-    // Comparison operator for sorting
-    bool operator<(const AeroHighScore& other) const {
-        return score > other.score; // Sort in descending order
-    }
-};
+// Füge eine Forward-Deklaration hinzu
+class UartCommunication;
 
 class AeroBlocks {
 public:
+    // Ändere den Konstruktor, um die UART-Kommunikation zu akzeptieren
     AeroBlocks();
     ~AeroBlocks();
+
+    // Neue Methode zum Setzen der UART-Kommunikation
+    void setUartCommunication(UartCommunication* uart);
 
     // Game lifecycle methods
     void init();
@@ -111,6 +100,8 @@ private:
     lv_obj_t* titleScreen;
     lv_obj_t* gameOverScreen;
     lv_obj_t* highScoreScreen;
+    lv_obj_t* nameEntryScreen;
+    lv_obj_t* nameTextfield;
     lv_obj_t* previousScreen;
     
     // Board and pieces
@@ -151,11 +142,18 @@ private:
     // High scores
     std::vector<AeroHighScore> highScores;
     
+    // Heartbeat timer
+    lv_timer_t* heartbeatTimer;
+    
+    // UART-Kommunikation
+    UartCommunication* uartCom;
+    
     // Game methods
     void createTitleScreen();
     void createGameScreen();
     void createGameOverScreen();
     void createHighScoreScreen();
+    void createNameEntryScreen();
     
     void resetGame();
     void generateNextPiece();
@@ -163,12 +161,13 @@ private:
     void updatePiecePreview();
     void updateScoreDisplay();
     void checkForCompletedLines();
-    bool isCollision(int pieceType, int rotation, int x, int y);
+    bool checkCollision(int pieceType, int rotation, int x, int y);
     void placePiece();
     void calculateDropInterval();
-    void addHighScore();
+    bool addHighScore(int score, int level, int lines, const char* name);
     void saveHighScores();
     void loadHighScores();
+    void addHighScoreDecoration(lv_obj_t* screen);
     
     // Movement methods
     void moveLeft();
@@ -183,9 +182,15 @@ private:
     static void updateCallback(lv_timer_t* timer);
     static void animationCallback(lv_timer_t* timer);
     
+    // Heartbeat methods
+    static void heartbeatCallback(lv_timer_t* timer);
+    void sendHeartbeat();
+    
     // Helper methods
     lv_color_t getPieceColor(int pieceType);
     void drawPiece(int pieceType, int rotation, int x, int y, lv_obj_t* parent, bool preview = false);
     void clearPreview();
     void addCloudAnimation();
+    int clearCompletedLines();
+    int calculateScore(int linesCleared, int currentLevel);
 };

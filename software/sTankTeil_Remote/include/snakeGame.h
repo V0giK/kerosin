@@ -18,12 +18,18 @@
 #include "lovyanGfxSetup.h" // Hier wird LovyanGFX Setup inkludiert
 #include <lvgl.h>
 
+// Füge eine Forward-Deklaration hinzu
+class UartCommunication;
+
 class SnakeGame {
 public:
     SnakeGame();
     void start();
     void stop();
     void reset(); // New method to completely reset the game state
+    
+    // Neue Methode zum Setzen der UART-Kommunikation
+    void setUartCommunication(UartCommunication* uart);
 
 private:
     // Game constants
@@ -64,6 +70,7 @@ private:
     lv_timer_t *game_timer;
     lv_timer_t *game_over_timer;
     lv_timer_t *animation_timer;
+    lv_timer_t *heartbeat_timer;  // Heartbeat-Timer hinzufügen
     
     // Game parameters
     int speed; // Speed in milliseconds for the timer
@@ -127,6 +134,8 @@ private:
         self->animate_start_screen();
     }
 
+    static void heartbeat_timer_cb(lv_timer_t *t);  // Callback für Heartbeat-Timer
+
     // New joystick callbacks
     static void joystick_event_cb(lv_event_t *e);
     static void pause_event_cb(lv_event_t *e);
@@ -155,4 +164,10 @@ private:
 
     // Helper function to validate direction changes
     bool isValidDirectionChange(int current, int requested);
+
+    // Methode zum Senden des Lebenszeichens
+    void send_heartbeat();
+
+    // UART-Kommunikation
+    UartCommunication* uartCom;
 };
