@@ -101,5 +101,6 @@ Entwickelt von [V0giK](https://github.com/V0giK) für RC-Tank- & Kerosinsysteme.
 ![](pump_proto.jpg)
 ![](loeten.jpg)
 ![](pump_aufbau.jpg)
+![](pump_fertig.jpg)
 
 während des bastelns ... https://youtube.com/shorts/paOjxJlpqOs
