@@ -64,38 +64,21 @@ const int SETUP_DISPLAY_DELAY = 100;  // ms
 // Display
 LGFX tft;
 
-// Globale Flags (aus actions.c)
-extern volatile bool g_go2home;
-extern volatile bool g_go2settings;
-extern volatile bool g_keyboardShow;
 extern lv_event_t g_keyboardShowE;
-extern volatile bool g_numpadShow;
 extern lv_event_t g_numpadShowE;
-extern volatile bool g_go2settingsSystem;
-extern volatile bool g_go2settingsCalibrate;
-extern volatile bool g_go2settingsModels;
 extern lv_event_t g_go2settingsModelsE;
-extern volatile bool g_unloadManuelFuel;
 extern lv_event_t g_resetDataFieldsE;
-extern volatile bool g_pumpStop;
-extern volatile bool g_pumpIn;
-extern volatile bool g_pumpOut;
-extern volatile bool g_go2model;
 extern lv_event_t g_go2modelE;
-extern volatile bool g_go2manuelPump;
-extern volatile bool g_go2calibrateModel;
 extern lv_event_t g_go2calibrateModelE;
-extern volatile bool g_unloadSystemSettings;
-extern volatile bool g_eventButtonClick;
 extern lv_event_t g_eventButtonClickE;
-extern volatile bool g_changePumpPwr;
 extern lv_event_t g_changePumpPwrE;
-extern volatile bool g_go2newModel;
 extern lv_event_t g_go2newModelE;
-extern volatile bool g_unloadModelSettings;
-extern volatile bool bModelButtonLongPressed;
-extern volatile bool g_viewCalibVolt;
 
+
+// Define the global variables that replace the bit fields for the undefined references
+// Note: Some flags are now in the UIFlags union - separate bools removed for consistency
+
+volatile UIFlags g_uiflags = {0};  // Init all to 0
 
 lv_obj_t *objModelPlus = NULL;
 lv_obj_t *objLoadedModel = NULL;
@@ -246,9 +229,9 @@ void handleControllerError() {
 void navigateToInitialScreen() {
     // Go to last model or home screen
     if(config.lastModel > 0) {
-        g_go2model = true;
+        UI_SET_GO2MODEL();
     } else {
-        g_go2home = true;
+        UI_SET_GO2HOME();
     }
 }
 
