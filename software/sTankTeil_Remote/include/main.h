@@ -23,7 +23,7 @@
 extern LGFX tft;
 extern const bool DEBUG;
 
-#define SW_VERSION "1.0.0"
+#define SW_VERSION "1.1.0"
 
 // Funktionsprototypen
 void deleteModel(lv_obj_t *obj);
