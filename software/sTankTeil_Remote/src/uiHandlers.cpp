@@ -37,19 +37,11 @@ extern ModelParameters model;
 extern UartCommunication uartCom;
 extern const char *configFilePath;
 extern const bool DEBUG;
+extern volatile UIFlags g_uiflags;
 
-// Globale Flags
-extern volatile bool g_go2home;
-extern volatile bool g_go2settings;
-extern volatile bool g_go2settingsSystem;
-extern volatile bool g_go2settingsCalibrate;
-extern volatile bool g_go2model;
 extern lv_event_t g_go2modelE;
-extern volatile bool g_go2newModel;
-extern volatile bool g_go2settingsModels;
 extern lv_event_t g_go2settingsModelsE;
-extern volatile bool g_unloadModelSettings;
-extern volatile bool g_viewCalibVolt;
+
 extern volatile bool g_modelLoadPending;
 extern int g_modelLoadId;
 
@@ -68,8 +60,8 @@ void handleScreenFlags() {
   // Reset watchdog at the beginning of potentially long operations
   esp_task_wdt_reset();
 
-  if (g_go2home) {
-    g_go2home = false;
+  if (UI_IS_GO2HOME()) {
+    UI_CLEAR_GO2HOME();
     set_var_s_screen_titel("Modellauswahl");
     if(lv_obj_is_visible(objects.cont_sys_settings)) {
       set_var_b_hide_dialog_save_system(false);
@@ -80,8 +72,8 @@ void handleScreenFlags() {
     }
     esp_task_wdt_reset(); // Reset after screen transition
   }
-  if (g_go2settings) {
-    g_go2settings = false;
+  if (UI_IS_GO2SETTINGS()) {
+    UI_CLEAR_GO2SETTINGS();
     set_var_s_screen_titel("Settings/Calibration");
     //go2screen(SCREEN_ID_SETTINGS);
     set_var_s_firmware_version_remote(SW_VERSION);
@@ -89,16 +81,16 @@ void handleScreenFlags() {
     go2screen(SCREEN_ID_SETTINGS_SYSTEM);
     esp_task_wdt_reset();
   }
-  if (g_go2settingsSystem) {
-    g_go2settingsSystem = false;
+  if (UI_IS_GO2SETTINGS_SYSTEM()) {
+    UI_CLEAR_GO2SETTINGS_SYSTEM();
     set_var_s_screen_titel("System Settings");
     set_var_s_firmware_version_remote(SW_VERSION);
     uartCom.sendData('R', COM_ID_FIRMWARE_VERSION, SW_VERSION);
     go2screen(SCREEN_ID_SETTINGS_SYSTEM);
     esp_task_wdt_reset();
   }
-  if (g_go2settingsCalibrate) {
-    g_go2settingsCalibrate = false;
+  if (UI_IS_GO2SETTINGS_CALIBRATE()) {
+    UI_CLEAR_GO2SETTINGS_CALIBRATE();
     set_var_s_screen_titel("Kalibrierung Flowsensor");
     set_var_b_hide_cont_flow_calibrate(false);
     set_var_i_calib_flow_sensor(get_var_s_flow_ticks());
@@ -110,13 +102,13 @@ void handleScreenFlags() {
     go2screen(SCREEN_ID_PUMP);
     esp_task_wdt_reset();
   }
-  if (g_go2model) {
-    g_go2model = false;
+  if (UI_IS_GO2MODEL()) {
+    UI_CLEAR_GO2MODEL();
     int id = (int)lv_event_get_user_data(&g_go2modelE);
     if(id == 0) {
       id = config.lastModel;
       if(id == 0) {
-        g_go2home = true;
+        UI_SET_GO2HOME();
         return;
       }
     }
@@ -196,8 +188,8 @@ void handleScreenFlags() {
     set_var_b_hide_wait(true); // Warte-Kringel aus
     esp_task_wdt_reset(); // Final reset
   }
-  if(g_go2newModel) {
-    g_go2newModel = false;
+  if(UI_IS_GO2NEW_MODEL()) {
+    UI_CLEAR_GO2NEW_MODEL();
     objLoadedModel = objModelPlus; // erforderlich damit beim unload ein Objekt vorhanden ist
     esp_task_wdt_reset();
     loadModel(-1, model); // NEU: initialModel laden
@@ -208,8 +200,8 @@ void handleScreenFlags() {
     go2screen(SCREEN_ID_SETTINGS_MODEL);
     esp_task_wdt_reset();
   }
-  if(g_go2settingsModels) {
-    g_go2settingsModels = false;
+  if(UI_IS_GO2SETTINGS_MODELS()) {
+    UI_CLEAR_GO2SETTINGS_MODELS();
     int id = (int)lv_event_get_user_data(&g_go2settingsModelsE);
     set_var_s_screen_titel("Modell bearbeiten");
     objLoadedModel = lv_event_get_target_obj(&g_go2settingsModelsE);
@@ -223,8 +215,8 @@ void handleScreenFlags() {
     go2screen(SCREEN_ID_SETTINGS_MODEL);
     esp_task_wdt_reset();
   }
-  if(g_unloadModelSettings) {
-    g_unloadModelSettings = false;
+  if(UI_IS_UNLOAD_MODEL_SETTINGS()) {
+    UI_CLEAR_UNLOAD_MODEL_SETTINGS();
 
     set_var_b_hide_keyboard(true);
     set_var_b_hide_numpad(true);

@@ -90,8 +90,8 @@ void applyConfigToUI(const Config &config) {
     set_var_s_akku_min_v(String(config.akkuMinV / 10.0).c_str());
     // akkuFactor wird auf dem Controller (Nano) berechnet und dort im EEPROM gespeichert
     set_var_s_sys_power_off_time(int2char(config.sysPowerOffTime));
-    set_var_s_pump_pwr_manu(int2char(config.pumpPwrManu));
-    set_var_s_pump_pwr_calib(int2char(config.pumpPwrCalib));
+    set_var_s_pump_pwr_manu(int2char(config.pumpPwrManu, LBL_POSTFIX_PROZENT));
+    set_var_s_pump_pwr_calib(int2char(config.pumpPwrCalib, LBL_POSTFIX_PROZENT));
     set_var_i_pump_pwr(config.pumpPwrCalib);
     set_var_s_pump_pwr(int2char(get_var_i_pump_pwr(), LBL_POSTFIX_PROZENT));
 }

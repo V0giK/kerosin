@@ -342,7 +342,7 @@ extern AeroBlocks aeroBlocks; // Add extern declaration for aeroBlocks
 extern ScreensEnum scrCurScreen; // Add this near the top, after other externs
 
 // Globale Flags
-extern volatile bool g_eventButtonClick;
+// Note: g_eventButtonClick is now defined as a macro in main.h
 extern lv_event_t g_eventButtonClickE;
 
 // Add extern declaration for go2screenPrev:
@@ -360,19 +360,14 @@ extern void btnModelSaveClick(lv_obj_t *objLoadedModel, lv_obj_t *objModelPlus, 
 // Add extern declaration for viewModelParameters:
 extern void viewModelParameters(TankTypeEnum tankType);
 
-// Add externs for keyboard flags and objects
-extern volatile bool g_keyboardShow;
+// Note: g_keyboardShow, g_numpadShow, g_unloadSystemSettings, g_viewCalibVolt
+// are now defined as macros in main.h
 extern lv_event_t g_keyboardShowE;
 extern void set_var_b_hide_keyboard(bool);
 
-// Add externs for numpad flags and objects
-extern volatile bool g_numpadShow;
 extern lv_event_t g_numpadShowE;
 extern void set_var_b_hide_numpad(bool);
 
-// Add externs for settings flags and variables
-extern volatile bool g_unloadSystemSettings;
-extern volatile bool g_viewCalibVolt;
 extern void set_var_b_hide_cont_calib_volt(bool);
 extern bool bSaveOnUnload;
 extern void set_var_s_akku_volt_messure(const char*);
@@ -384,8 +379,8 @@ void handleButtonClick() {
     if (get_var_b_is_pumping())
         return;
 
-    if(g_eventButtonClick) {
-        g_eventButtonClick = false;
+    if(UI_IS_EVENT_BUTTON_CLICK()) {
+        UI_CLEAR_EVENT_BUTTON_CLICK();
 
         lv_obj_t *obj = lv_event_get_current_target_obj(&g_eventButtonClickE);
         int userData = (int)lv_event_get_user_data(&g_eventButtonClickE);
@@ -502,8 +497,8 @@ void handleButtonClick() {
 
 /** Handle keyboard events */
 void handleKeyboard() {
-    if (g_keyboardShow) {
-        g_keyboardShow = false;
+    if (UI_IS_KEYBOARD_SHOW()) {
+        UI_CLEAR_KEYBOARD_SHOW();
         lv_obj_t *obj = lv_event_get_current_target_obj(&g_keyboardShowE);
         int userData = (int)lv_event_get_user_data(&g_keyboardShowE);
         if (userData == 1) {
@@ -519,8 +514,8 @@ void handleKeyboard() {
 
 /** Numpad anzeigen/verstecken */
 void handleNumpad() {
-    if (g_numpadShow) {
-        g_numpadShow = false;
+    if (UI_IS_NUMPAD_SHOW()) {
+        UI_CLEAR_NUMPAD_SHOW();
         lv_obj_t *obj = lv_event_get_current_target_obj(&g_numpadShowE);
         int userData = (int)lv_event_get_user_data(&g_numpadShowE);
         if (userData == 1) {
@@ -536,8 +531,8 @@ void handleNumpad() {
 
 /** Einstellungen Seite behandeln */
 void handleSettingsPage() {
-    if(g_unloadSystemSettings) {
-        g_unloadSystemSettings = false;
+    if(UI_IS_UNLOAD_SYSTEM_SETTINGS()) {
+        UI_CLEAR_UNLOAD_SYSTEM_SETTINGS();
 
         set_var_b_hide_keyboard(true);
         set_var_b_hide_numpad(true);
@@ -547,8 +542,8 @@ void handleSettingsPage() {
             bSaveOnUnload = true;
         }
     }
-    if(g_viewCalibVolt) {
-        g_viewCalibVolt = false;
+    if(UI_IS_VIEW_CALIB_VOLT()) {
+        UI_CLEAR_VIEW_CALIB_VOLT();
         set_var_s_akku_volt_messure((const char*)get_var_s_akku_volt());
         set_var_b_hide_cont_calib_volt(false);
         set_var_b_hide_numpad(false);

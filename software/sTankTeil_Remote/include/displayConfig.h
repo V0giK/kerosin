@@ -25,5 +25,10 @@
 // Reduziere Buffergröße für weniger RAM-Verbrauch
 #define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 40 * (LV_COLOR_DEPTH / 8))
 
-// Buffer als static deklarieren, optional DMAMEM für PSRAM (LovyanGFX/ESP32)
+// Buffer als static deklarieren, optional in PSRAM für ESP32 (Weniger internal RAM-Verbrauch)
+#ifdef BOARD_HAS_PSRAM
+#include <esp_attr.h>  // Für ESP32 PSRAM-Attribut
+EXT_RAM_ATTR static uint32_t draw_buf[DRAW_BUF_SIZE / 4] = {0};
+#else
 static uint32_t draw_buf[DRAW_BUF_SIZE / 4] = {0};
+#endif
