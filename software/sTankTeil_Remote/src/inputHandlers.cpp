@@ -32,11 +32,21 @@
 #include <LittleFS.h>
 #include <DNSServer.h>
 #include <esp_mac.h> // Für MAC-Adresse
+#include <esp_task_wdt.h> // Für WDT timeout modification
+
+/*
+ * Extern declarations are now in main.h
+ */
 
 WebServer backupServer(80);
 DNSServer captiveDns;
 const byte DNS_PORT = 53;
 bool backupServerRunning = false;
+
+// OTA callback function
+void otaEndCallback(bool success) {
+    otaCompletedFlag = success;
+}
 
 void handleBackupWebServer() {
     if (backupServerRunning) return;
@@ -314,10 +324,18 @@ void handleBackupWebServer() {
         }
     });
 
+    // ElegantOTA callback for completion
+    ElegantOTA.onEnd(otaEndCallback);
+
     // ElegantOTA
     ElegantOTA.begin(&backupServer);
 
+    // Increase WDT timeout for backup mode to prevent issues during long OTA transfers
+    esp_task_wdt_init(25, true); // Temporarily 25 seconds for backup mode
+    esp_task_wdt_add(NULL);
+
     backupServerRunning = true;
+    inBackupMode = true;
     backupServer.begin();
 }
 

@@ -105,6 +105,10 @@ AeroBlocks aeroBlocks;
 // Add missing error state flag
 bool inControllerErrorState = false;
 
+// Backup mode flags
+volatile bool inBackupMode = false;
+volatile bool otaCompletedFlag = false;
+
 volatile bool g_modelLoadPending = false;
 int g_modelLoadId = 0;
 
@@ -252,6 +256,34 @@ void loop() {
         // Backup-Webserver weiter bedienen, falls aktiv
         handleBackupServerLoop();
         return; // Skip the rest of the loop
+    }
+
+    // Check if we're in backup mode (OTA optimized)
+    if (inBackupMode) {
+        // Reset watchdog to prevent timeouts during long OTA transfer
+        esp_task_wdt_reset();
+
+        // Minimal UI updates to keep screen responsive
+        lv_timer_handler(); // LVGL timer for display updates
+        ui_tick();
+
+        // Only run backup server and handle OTA to free maximum memory
+        handleBackupServerLoop();
+
+        // Check if OTA completed
+        if (otaCompletedFlag) {
+            inBackupMode = false;
+            otaCompletedFlag = false;
+
+            // Restore original WDT timeout
+            esp_task_wdt_init(WDT_TIMEOUT, true); // Back to 5 seconds
+            esp_task_wdt_add(NULL);
+
+            ESP.restart();
+        }
+
+        vTaskDelay(10); // Small delay to throttle
+        return; // Skip all other functionality
     }
 
     // 1. UART Kommunikation (höchste Priorität - 100Hz)

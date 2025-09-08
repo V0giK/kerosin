@@ -52,6 +52,10 @@ typedef union UIFlags {
 
 extern volatile UIFlags g_uiflags;
 
+// Backup mode flags
+extern volatile bool inBackupMode;
+extern volatile bool otaCompletedFlag;
+
 extern LGFX tft;
 extern const bool DEBUG;
 
