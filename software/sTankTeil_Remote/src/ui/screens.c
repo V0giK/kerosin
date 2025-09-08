@@ -3176,6 +3176,38 @@ void create_screen_pump() {
                     lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_label_set_text(obj, "");
                 }
+                {
+                    lv_obj_t *obj = lv_label_create(parent_obj);
+                    lv_obj_set_pos(obj, 19, 245);
+                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                    add_style_label_style(obj);
+                    lv_label_set_text(obj, "Druck");
+                }
+                {
+                    lv_obj_t *obj = lv_label_create(parent_obj);
+                    objects.obj68 = obj;
+                    lv_obj_set_pos(obj, 198, 245);
+                    lv_obj_set_size(obj, 157, LV_SIZE_CONTENT);
+                    add_style_label_style(obj);
+                    lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_label_set_text(obj, "");
+                }
+                {
+                    lv_obj_t *obj = lv_label_create(parent_obj);
+                    lv_obj_set_pos(obj, 19, 273);
+                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                    add_style_label_style(obj);
+                    lv_label_set_text(obj, "Diff. Druck");
+                }
+                {
+                    lv_obj_t *obj = lv_label_create(parent_obj);
+                    objects.obj69 = obj;
+                    lv_obj_set_pos(obj, 198, 273);
+                    lv_obj_set_size(obj, 157, LV_SIZE_CONTENT);
+                    add_style_label_style(obj);
+                    lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_label_set_text(obj, "");
+                }
             }
         }
     }
@@ -3369,6 +3401,24 @@ void tick_screen_pump() {
         if (strcmp(new_val, cur_val) != 0) {
             tick_value_change_obj = objects.obj67;
             lv_label_set_text(objects.obj67, new_val);
+            tick_value_change_obj = NULL;
+        }
+    }
+    {
+        const char *new_val = get_var_s_fuel_mbar();
+        const char *cur_val = lv_label_get_text(objects.obj68);
+        if (strcmp(new_val, cur_val) != 0) {
+            tick_value_change_obj = objects.obj68;
+            lv_label_set_text(objects.obj68, new_val);
+            tick_value_change_obj = NULL;
+        }
+    }
+    {
+        const char *new_val = get_var_s_fuel_diff_mbar();
+        const char *cur_val = lv_label_get_text(objects.obj69);
+        if (strcmp(new_val, cur_val) != 0) {
+            tick_value_change_obj = objects.obj69;
+            lv_label_set_text(objects.obj69, new_val);
             tick_value_change_obj = NULL;
         }
     }
