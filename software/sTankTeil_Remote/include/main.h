@@ -55,7 +55,7 @@ extern volatile UIFlags g_uiflags;
 extern LGFX tft;
 extern const bool DEBUG;
 
-#define SW_VERSION "1.1.1"
+#define SW_VERSION "1.1.0"
 
 // UI Flag Macros for better code maintainability
 #define UI_SET_GO2HOME() (g_uiflags.bits.g_go2home = 1)
