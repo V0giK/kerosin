@@ -1,6 +1,6 @@
 {
   "navigation": {
-    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/0",
+    "selectedUserPageObject": "[sTankTeil.eez-project]:/userPages/2",
     "selectedUserWidgetObject": "[sTankTeil.eez-project]:/userWidgets/1",
     "selectedGlobalVariableObject": "[sTankTeil.eez-project]:/variables/globalVariables/77",
     "selectedStyleObject": "[sTankTeil.eez-project]:/lvglStyles/styles/0",
@@ -170,7 +170,8 @@
                       "enableClose": false,
                       "icon": "svg:hierarchy"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -194,11 +195,33 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 61.55352480417755,
-              "selected": -1,
+              "selected": 1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
-              "children": [],
-              "active": true
+              "children": [
+                {
+                  "type": "tab",
+                  "id": "#a8229fc1-2a6b-4d2a-908f-9865efa94d53",
+                  "name": "header",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[sTankTeil.eez-project]:/userWidgets/1",
+                    "permanent": false
+                  },
+                  "icon": "svg:user_widget"
+                },
+                {
+                  "type": "tab",
+                  "id": "#413bb191-a8af-4b4b-9518-d8e0e72c1b24",
+                  "name": "ModelSelect",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[sTankTeil.eez-project]:/userPages/2",
+                    "permanent": false
+                  },
+                  "icon": "svg:page"
+                }
+              ]
             },
             {
               "type": "row",
@@ -1073,9 +1096,12 @@
       "selection": {
         "0": {
           "0": {},
-          "2": {
-            "$selected": true
-          }
+          "1": {
+            "0": {
+              "$selected": true
+            }
+          },
+          "2": {}
         }
       },
       "transform": {
@@ -1145,8 +1171,8 @@
       "selection": {
         "0": {
           "0": {},
-          "4": {
-            "10": {
+          "5": {
+            "7": {
               "$selected": true
             }
           }

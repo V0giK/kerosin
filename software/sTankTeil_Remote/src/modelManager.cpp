@@ -11,6 +11,9 @@
 #include "ui/screens.h" // Füge dieses Include hinzu, damit 'objects' bekannt ist
 #include "ui/styles.h" // Add this include so the linker finds add_style_label_model_style
 
+const int MAX_MODEL_COUNT = 3; // Max. Anzahl Modelle laden, um RAM zu sparen
+int g_modelCount = 0; // Globale Modellzählung für Limit-Verwaltung
+
 // Externe globale Variablen/Objekte aus main.cpp
 extern lv_obj_t *objModelPlus;
 extern void add_style_label_model_style(lv_obj_t *obj);
@@ -72,11 +75,19 @@ bool saveModel(int id, ModelParameters &model) {
 void deleteModel(int id) {
     String filename = "/models/" + String(id) + ".json";
     if(DEBUG) Serial.println("Removing file: " + filename);
+    if(DEBUG) Serial.println("g_modelCount before delete: " + String(g_modelCount));
     if (LittleFS.exists(filename)) {
         bool removed = LittleFS.remove(filename);
         if(DEBUG) {
             if (removed) Serial.println("File successfully removed: " + filename);
             else Serial.println("Error: Failed to remove file: " + filename);
+        }
+        g_modelCount--; // Zählung aktualisieren
+        // Wenn unter Limit und Plus-Button nicht existiert, neu erstellen
+        if (g_modelCount < MAX_MODEL_COUNT && objModelPlus == NULL) {
+            if(DEBUG) Serial.println("Recreating Plus button after model deletion");
+            objModelPlus = addModelPlusButton2container(g_modelCount + 1); // Nähere ID für Neu
+            lv_timer_handler(); // UIUpdate forcile
         }
     } else {
         if(DEBUG) Serial.println("Warning: File does not exist: " + filename);
@@ -85,6 +96,17 @@ void deleteModel(int id) {
 
 /** Modelle aus Storage laden und Buttons erzeugen */
 void loadModelsFromStorage() {
+    // Clean existing UI model buttons only, keep manual pump button (first child)
+    if (objects.cont_models) {
+        uint32_t child_cnt = lv_obj_get_child_cnt(objects.cont_models);
+        while(child_cnt > 1) { // Behalte nur den ersten (manual pump button)
+            lv_obj_t* child = lv_obj_get_child(objects.cont_models, 1);
+            lv_obj_del(child);
+            child_cnt--; // Count nach delete adjust
+        }
+    }
+    objModelPlus = NULL; // Reset Plus button pointer
+
     // Make sure models directory exists
     if (!LittleFS.exists("/models")) {
         if(DEBUG) Serial.println("Creating models directory...");
@@ -139,6 +161,16 @@ void loadModelsFromStorage() {
 
             addModelButton2container(modelName, curId);
             modelCount++;
+
+            // RAM-SpiDatum-Limit: Stoppe bei MAX_MODEL_COUNT Modellen, um lv_obj_t RAM zu sparen
+            if (modelCount >= MAX_MODEL_COUNT) {
+                if(DEBUG) Serial.println("Model limit reached (" + String(MAX_MODEL_COUNT) + "), stopping loading more models.");
+                char statusMsg[50];
+                sprintf(statusMsg, "Max %d Modelle geladen", MAX_MODEL_COUNT);
+                set_var_s_status(statusMsg);
+                file.close();
+                break;
+            }
         } else {
             if(DEBUG) Serial.println("Error parsing model file: " + fileName + " - " + String(error.c_str()));
         }
@@ -154,7 +186,13 @@ void loadModelsFromStorage() {
     }
 
     if(DEBUG) Serial.println("Loaded " + String(modelCount) + " models, max ID: " + String(maxId));
-    objModelPlus = addModelPlusButton2container(++maxId);
+    g_modelCount = modelCount; // Update globale Zählung
+    if (g_modelCount < MAX_MODEL_COUNT) {
+        objModelPlus = addModelPlusButton2container(++maxId);
+    } else {
+        if(DEBUG) Serial.println("Not adding Plus button due to model limit");
+        objModelPlus = NULL; // Kein Plus-Button wenn Limit erreicht
+    }
     root.close();
 }
 
@@ -269,10 +307,17 @@ void btnModelSaveClick(lv_obj_t *objLoadedModel, lv_obj_t *objModelPlus, ModelPa
     // Auflistung aktualisieren
     if(isNewModel && bNoError) {
         // neues Modell erstellen und id hochzählen
+        g_modelCount++; // Neue Modellzählung erhöhen
         objLoadedModel = addModelButton2container(get_var_s_modelname(), id);
-        // PLUS Button ans Ende Verschieben und nächste neie id setzen
+        // PLUS Button ans Ende verschieben und nächste neue id setzen
         lv_obj_set_user_data(objModelPlus, (void*)++id);
         lv_obj_move_foreground(objModelPlus);  // Am Ende platzieren
+        // Wenn Grenze erreicht, Plus-Button entfernen
+        if (g_modelCount >= MAX_MODEL_COUNT && objModelPlus != NULL) {
+            lv_obj_del(objModelPlus);
+            objModelPlus = NULL;
+            if(DEBUG) Serial.println("Removed Plus button due to model limit");
+        }
     } else {
         lv_label_set_text(lv_obj_get_child(objLoadedModel, 0), model.getModelName().c_str());
     }

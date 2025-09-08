@@ -53,7 +53,7 @@ static uint32_t lastUiUpdate = 0;
 static uint32_t lastStatusCheck = 0;
 
 // Debug-Ausgabe steuern
-const bool DEBUG = false;
+const bool DEBUG = true;
 //LV_LOG_USER("dfg");
 
 // Setup constants
@@ -335,6 +335,9 @@ void deleteModel(lv_obj_t *obj) {
   } else {
     if(DEBUG) Serial.println("Menu OBJ delete: not performed as it's the '+' button");
   }
+
+  // UI neu laden, um konsistente Model-Liste und Plus-Button zu haben
+  loadModelsFromStorage();
 
   // If this was the last loaded model, reset the config
   if (config.lastModel == id) {
