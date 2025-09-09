@@ -18,7 +18,7 @@
 #include "variables.h"
 
 // Debug-Ausgabe steuern
-const bool DEBUG = false;
+const bool DEBUG = true;
 
 
 
@@ -64,7 +64,7 @@ bool initModelData = false;
 bool bSendBroadcast = false;
 
 // Pumpsequenz
-PumpSequence pumpSeq(10);
+PumpSequence pumpSeq;
 
 // Modell
 ModelParameters model;

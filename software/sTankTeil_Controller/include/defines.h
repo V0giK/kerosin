@@ -121,4 +121,4 @@
 #define REFUELL_2TANKS     "1,5,4"
 #define DEFUELL_2TANKS     "3"
 
-#define SW_VERSION "1.0.0"
+#define SW_VERSION "1.0.1"

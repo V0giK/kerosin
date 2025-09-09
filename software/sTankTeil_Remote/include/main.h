@@ -59,6 +59,7 @@ extern volatile bool otaCompletedFlag;
 extern LGFX tft;
 extern const bool DEBUG;
 
+// VERSION
 #define SW_VERSION "1.1.0-beta"
 
 // UI Flag Macros for better code maintainability

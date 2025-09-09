@@ -104,10 +104,10 @@ void setup() {
       // Start immer im "Modell-Mode", ausser es sind keine Daten vorhanden ... dies auch beim Mode-Wechsel berücksichtigen!!!!!
       bHasModelSaved = model.loadFromEEPROM(EEPROM_ADR_MODEL);
       if(bHasModelSaved) {
-        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_AUTO)));
+        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "1")); // MODE_AUTO
       } else {
         // model.setTankType(0); // TankType initialisieren da laufend darauf geprüft wird
-        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_MANUELL)));
+        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "0")); // MODE_MANUELL
       }
     }
 
@@ -337,31 +337,31 @@ void handlePumpSeq() {
 void onButtonInClick() {
   buzzer.playAcknowledgmentTone();
   if(pump.isOn()) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_STOP)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "2")); // CTR_STOP
   } else {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_TANKEN)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "1")); // CTR_TANKEN
   }
 }
 
 void onButtonOutClick() {
   buzzer.playAcknowledgmentTone();
   if(pump.isOn()) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_STOP)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "2")); // CTR_STOP
   } else {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_ENTTANKEN)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "0")); // CTR_ENTTANKEN
   }
 }
 
 void onBothButtonsLongPress() {
   buzzer.playAcknowledgmentTone();
   if(pump.isOn()) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_STOP)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "2")); // CTR_STOP
   }
   if(bHasModelSaved && pumpMode == MODE_MANUELL) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_AUTO)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "1")); // MODE_AUTO
   } else {
     if(!bHasModelSaved) buzzer.playNegativeTone();
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_MANUELL)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "0")); // MODE_MANUELL
   }
 }
 

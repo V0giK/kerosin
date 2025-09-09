@@ -18,13 +18,14 @@
 #include "bufferFunctions.h"
 
 // FIFO Buffer
-CircularBuffer<recData, 15> fifo_input_buffer;
+CircularBuffer<recData, 8> fifo_input_buffer;
 
 // Objekt für Recieved Data - von UART
-recData getRecDataObj(int16_t id, String value) {
+recData getRecDataObj(int16_t id, const String& value) {
   recData dta;
   dta.id = id;
-  dta.value = value;
+  strncpy(dta.value, value.c_str(), sizeof(dta.value) - 1);
+  dta.value[sizeof(dta.value) - 1] = '\0';
   return dta;
 }
 
@@ -33,7 +34,7 @@ bool buffer_tick() {
 
   while(!fifo_input_buffer.isEmpty()) {
     recData dta = fifo_input_buffer.shift();
-    int iVal = atoi(dta.value.c_str());
+    int iVal = atoi(dta.value);
 
     switch(dta.id) {
       case COM_ID_FLOWCALIBRATE:
@@ -106,7 +107,7 @@ bool buffer_tick() {
         // wenn keine Remote vorhanden
         if(!bRemoteConnected) {
           if(pumpMode == MODE_AUTO) {
-            // TODO: prüfen ob Modeldaten vorhanden
+            // prüfen ob Modeldaten vorhanden
             if(bHasModelSaved) {
               digitalWrite(PIN_LED_MODEL, HIGH);
               digitalWrite(PIN_LED_MANUEL, LOW);
@@ -183,7 +184,7 @@ void handlePumpControl(int iVal) {
 }
 
 // ModellDaten
-void handleModelCommand(int id, int iVal, const String& value){
+void handleModelCommand(int id, int iVal, const char* value){
   switch (id)
   {
     case COM_ID_TANKTYPE:

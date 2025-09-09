@@ -37,8 +37,8 @@ struct Element {
 
 class PumpSequence {
 private:
-    Element* elements;
-    size_t size;
+    Element elements[10];
+    static constexpr size_t size = 10;
     size_t currentIndex;
     bool bProcessing;
 
@@ -46,10 +46,8 @@ private:
 
 public:
     // Konstruktor
-    PumpSequence(size_t size);
+    PumpSequence();
 
-    // Destruktor
-    ~PumpSequence();
 
     // Initialwerte setzen
     void reset();
