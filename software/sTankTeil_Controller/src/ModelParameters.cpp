@@ -1,4 +1,5 @@
 #include "ModelParameters.h"
+#include "variables.h"
 #include <EEPROM.h>
 
 void ModelParameters::getShortModelname(char buffer[16]) {
@@ -69,51 +70,38 @@ void ModelParameters::setHopperPressure(int value) { hopperPressure = value; }
 void ModelParameters::setPumpStopHopperPressureDiff(int value) { pumpStopHopperPressureDiff = value; }
 
 void ModelParameters::printModelParameters() {
-    Serial.println("----- Modell Daten -----");
-    delay(10);
-    Serial.print("Modellname:                     "); Serial.println(getModelName());
-    delay(10);
-    Serial.print("Tanktype                        "); Serial.println(getTankType());
-    delay(10);
-    Serial.print("Menge:                          "); Serial.println(getMenge());
-    delay(10);
-    Serial.print("Pump PWR                        "); Serial.println(getPumpPwr());
-    delay(10);
-    Serial.print("Pressure drop hose break:       "); Serial.println(getPressureDropHoseBreak());
-    delay(10);
-    Serial.print("Max refuel time:                "); Serial.println(getMaxRefuelTime());
-    delay(10);
-    Serial.print("Max defuel time:                "); Serial.println(getMaxDefuelTime());
-    delay(10);
-    Serial.print("Back fuel time:                 "); Serial.println(getBackFuelTime());
-    delay(10);
-    Serial.print("Air removal time:               "); Serial.println(getAirRemovalTime());
-    delay(10);
-    Serial.print("Pump stop empty delay:          "); Serial.println(getPumpStopEmptyDelay());
-    delay(10);
-    Serial.print("Messurement delay:              "); Serial.println(getMessurementDelay());
-    delay(10);
-    Serial.print("Max refuel ml:                  "); Serial.println(getMaxRefuelMl());
-    delay(10);
-    Serial.print("Max defuel ml:                  "); Serial.println(getMaxDefuelMl());
-    delay(10);
-    Serial.print("Max pressure:                   "); Serial.println(getMaxPressure());
-    delay(10);
-    Serial.print("Pump stop pressure diff:        "); Serial.println(getPumpStopPressureDiff());
-    delay(10);
-    Serial.print("Pump stop pressure empty:       "); Serial.println(getPumpStopPressureEmpty());
-    delay(10);
-    Serial.print("Hopper pressure:                "); Serial.println(getHopperPressure());
-    delay(10);
-    Serial.print("Pump stop hopper pressure diff: "); Serial.println(getPumpStopHopperPressureDiff());
-    delay(10);
-}
+     #ifndef DEBUG
+     return;
+     #endif
+
+     Serial.println("----- Modell Daten -----");
+     Serial.print("Modellname:                     "); Serial.println(getModelName());
+     Serial.print("Tanktype                        "); Serial.println(getTankType());
+     Serial.print("Menge:                          "); Serial.println(getMenge());
+     Serial.print("Pump PWR                        "); Serial.println(getPumpPwr());
+     Serial.print("Pressure drop hose break:       "); Serial.println(getPressureDropHoseBreak());
+     Serial.print("Max refuel time:                "); Serial.println(getMaxRefuelTime());
+     Serial.print("Max defuel time:                "); Serial.println(getMaxDefuelTime());
+     Serial.print("Back fuel time:                 "); Serial.println(getBackFuelTime());
+     Serial.print("Air removal time:               "); Serial.println(getAirRemovalTime());
+     Serial.print("Pump stop empty delay:          "); Serial.println(getPumpStopEmptyDelay());
+     Serial.print("Messurement delay:              "); Serial.println(getMessurementDelay());
+     Serial.print("Max refuel ml:                  "); Serial.println(getMaxRefuelMl());
+     Serial.print("Max defuel ml:                  "); Serial.println(getMaxDefuelMl());
+     Serial.print("Max pressure:                   "); Serial.println(getMaxPressure());
+     Serial.print("Pump stop pressure diff:        "); Serial.println(getPumpStopPressureDiff());
+     Serial.print("Pump stop pressure empty:       "); Serial.println(getPumpStopPressureEmpty());
+     Serial.print("Hopper pressure:                "); Serial.println(getHopperPressure());
+     Serial.print("Pump stop hopper pressure diff: "); Serial.println(getPumpStopHopperPressureDiff());
+ }
 
 void ModelParameters::fromJSON(const String& json) {
     StaticJsonDocument<1024> doc;
     DeserializationError error = deserializeJson(doc, json);
     if (error) {
+        #ifdef DEBUG
         Serial.println("Fehler beim Parsen des JSON!");
+        #endif
         return;
     }
 

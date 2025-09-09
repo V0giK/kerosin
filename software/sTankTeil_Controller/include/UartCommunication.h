@@ -25,7 +25,7 @@
 class UartCommunication {
 public:
     // Konstruktor
-    UartCommunication(uint8_t rxPin, uint8_t txPin, bool debug = false);
+    UartCommunication(uint8_t rxPin, uint8_t txPin);
 
     void begin(long baudRate);
     bool tick();
@@ -45,8 +45,6 @@ private:
     void debugPrint(const String &message);
 
     NeoSWSerial softSerial;
-
-    bool debugEnabled;
 
     // ACK-Warte-Variablen
     bool waitingForAck = false;

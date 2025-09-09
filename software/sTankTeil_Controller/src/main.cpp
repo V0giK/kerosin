@@ -79,15 +79,19 @@ void setup() {
 
   //configManager.resetToDefaults();
 
-
+    #ifdef DEBUG
     Serial.begin(115200);        // Serielle Schnittstelle starten
+    #endif
     // Callbacks registrieren
     remoteCom.setWriteCallback(onWrite);
     remoteCom.setReadCallback(onRead);
 
     bRemoteConnected = !digitalRead(PIN_MOTE_CHK);
-    Serial.print("Mote connected:" ); Serial.println(bRemoteConnected?"true":"false");
-    
+    #ifdef DEBUG
+    Serial.print("Remote connected (PIN_MOTE_CHK="); Serial.print(bRemoteConnected?"true":"false"); Serial.println(")");
+    //Serial.flush();
+    #endif
+
     if(bRemoteConnected) {
       digitalWrite(PIN_MOTE_TXRX, HIGH); // Versorgungsspannung für Kommunikation mit Remote aktivieren (RS422)
       digitalWrite(PIN_MOTE_12V, HIGH); // Versorgungsspannung für Remote aktivieren (12V)
@@ -104,10 +108,10 @@ void setup() {
       // Start immer im "Modell-Mode", ausser es sind keine Daten vorhanden ... dies auch beim Mode-Wechsel berücksichtigen!!!!!
       bHasModelSaved = model.loadFromEEPROM(EEPROM_ADR_MODEL);
       if(bHasModelSaved) {
-        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_AUTO)));
+        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "1")); // MODE_AUTO
       } else {
         // model.setTankType(0); // TankType initialisieren da laufend darauf geprüft wird
-        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_MANUELL)));
+        fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "0")); // MODE_MANUELL
       }
     }
 
@@ -131,8 +135,10 @@ void setup() {
     voltReader.setCalibrationFactor(configManager.getBattKalibrierungsfaktor() / 10000.0);
     voltReader.setThresholds(configManager.getMinimalspannungAkku() / 10.0, 9.5, voltageAlert);
 
-    if (DEBUG) Serial.println("System gestartet...");
-    Serial.flush();
+    #ifdef DEBUG
+    Serial.println("System gestartet...");
+    //Serial.flush();
+    #endif
 
 
     // LEDs prüfen
@@ -157,21 +163,18 @@ void setup() {
 
 void loop() {
   bool hasActivity = false;
-  hasActivity = remoteCom.tick();         // Remote prüfen
-  
-  buttonManager.update();   // Taster-Logik aktualisieren
-  hasActivity |= buffer_tick();
+
+  if(pump.isOn() || pumpSeq.isProcessing()) hasActivity = true;
+  hasActivity |= remoteCom.tick();  // Remote prüfen
+  buttonManager.update();           // Taster-Logik aktualisieren
+  hasActivity |= buffer_tick();     // Eingangs-Puffer verarbeiten
 
   if(hasActivity) buzzer.updateActivity();
   buzzer.checkReminder();
 
-  if(pump.isOn() || pumpSeq.isProcessing()) hasActivity = true;
-
-  // Batteriespannung
   // Berechne die Spannung
   voltReader.readVoltage();
-
-
+  // LED-Status aktualisieren
   ledController.update();
 
 
@@ -205,7 +208,7 @@ void loop() {
   // 5 Sekunden
   if (currentMillis - lastMillis5sec >= INTERVAL_5S) {
     lastMillis5sec = currentMillis;
-
+    // Batteriespannung prüfen
     voltReader.evaluateVoltage(); // Bewertung der Spannung und ggf. Callback-Aufruf
     remoteCom.sendData('W', COM_ID_AKKU_VOLT, voltReader.getLastVoltageString().c_str());
 
@@ -337,31 +340,31 @@ void handlePumpSeq() {
 void onButtonInClick() {
   buzzer.playAcknowledgmentTone();
   if(pump.isOn()) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_STOP)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "2")); // CTR_STOP
   } else {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_TANKEN)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "1")); // CTR_TANKEN
   }
 }
 
 void onButtonOutClick() {
   buzzer.playAcknowledgmentTone();
   if(pump.isOn()) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_STOP)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "2")); // CTR_STOP
   } else {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_ENTTANKEN)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "0")); // CTR_ENTTANKEN
   }
 }
 
 void onBothButtonsLongPress() {
   buzzer.playAcknowledgmentTone();
   if(pump.isOn()) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, String(CTR_STOP)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_CONTROL, "2")); // CTR_STOP
   }
   if(bHasModelSaved && pumpMode == MODE_MANUELL) {
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_AUTO)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "1")); // MODE_AUTO
   } else {
     if(!bHasModelSaved) buzzer.playNegativeTone();
-    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, String(MODE_MANUELL)));
+    fifo_input_buffer.push(getRecDataObj(COM_ID_PUMP_MODE, "0")); // MODE_MANUELL
   }
 }
 

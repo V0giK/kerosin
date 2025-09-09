@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pumpFunctions.h"
+#include "defines.h"
 
 // Neue Timer-Variablen
 unsigned long refuelEndTime = 0;
@@ -77,7 +78,9 @@ void refuellAction()
     Element* el = pumpSeq.getCurrent();
     if(el->nummer == SEQ_REFUELL)
     {
-      if(DEBUG) { Serial.println("Tanken"); delay(10); }
+      #ifdef DEBUG
+      Serial.println("Tanken");
+      #endif
       if(!el->status)
       {
         // starten
@@ -186,7 +189,9 @@ void defuellAction()
     Element* el = pumpSeq.getCurrent();
     if(el->nummer == SEQ_DEFUELL)
     {
-      if(DEBUG) { Serial.println("Enttanken"); delay(10); }
+      #ifdef DEBUG
+      Serial.println("Enttanken");
+      #endif
       if(!el->status)
       {
         // starten
@@ -373,7 +378,9 @@ void backfuellAction()
         remoteCom.sendData('W', COM_ID_STATUS, "rueck tanken");
         actionTime = millis();
 
-        if(DEBUG) { Serial.println("rueck Tanken"); delay(10); }
+        #ifdef DEBUG
+        Serial.println("rueck Tanken");
+        #endif
       }
       else
       {
@@ -416,13 +423,17 @@ void airremovalAction()
         actionTime = millis();
         emptyTime = 0;
   
-        if(DEBUG) { Serial.println("Luft entfernen"); delay(10); }
+        #ifdef DEBUG
+        Serial.println("Luft entfernen");
+        #endif
       }
       else
       {
         actionSec = (millis() - actionTime) / 1000;
 
-        if(DEBUG) { Serial.println(actionSec); delay(10); }
+        #ifdef DEBUG
+        Serial.println(actionSec);
+        #endif
 
         /* Ende Entetanken prüfen */
         // Pressure - MessureDelay vorbei
@@ -448,7 +459,9 @@ void airremovalAction()
             {
               emptyTime = millis();
               remoteCom.sendData('W', COM_ID_STATUS, "Kerosin erkannt");
-              if(DEBUG) { Serial.println("Kerosin kommt"); delay(10); }
+              #ifdef DEBUG
+              Serial.println("Kerosin kommt");
+              #endif
             }
             else
             {

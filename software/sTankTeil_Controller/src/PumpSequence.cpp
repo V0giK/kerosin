@@ -15,17 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "PumpSequence.h"
+#include "variables.h"
 
 // Konstruktor
-PumpSequence::PumpSequence(size_t size) : size(size), currentIndex(0) {
-    elements = new Element[size];
+PumpSequence::PumpSequence() : currentIndex(0) {
     bProcessing = false;
     reset();
-}
-
-// Destruktor
-PumpSequence::~PumpSequence() {
-    delete[] elements;
 }
 
 // Initialwerte setzen
@@ -64,12 +59,11 @@ Element* PumpSequence::getFirst() {
 // Processing stoppen wenn das nächste Element SEQ_NONE ist
 Element* PumpSequence::getNext(bool bStopProcessing) {
 
-    Element* element;
+    Element* element = &elements[currentIndex];
     if (currentIndex + 1 < size) {
         ++currentIndex;
         element = &elements[currentIndex];
     }
-    element = &elements[currentIndex]; // Letztes Element zurückgeben
     if(element->nummer == SEQ_NONE) { stopProcessing(); }
 
     return element;
@@ -90,14 +84,18 @@ void PumpSequence::setCurrentID(size_t id) {
 
 // Element ausgeben (Debug)
 void PumpSequence::printElements() {
-    for (size_t i = 0; i < size; ++i) {
-        Serial.print("Element ");
-        Serial.print(i);
-        Serial.print(": Nummer = ");
-        Serial.print(elements[i].nummer);
-        Serial.print(", Status = ");
-        Serial.println(elements[i].status ? "true" : "false");
-    }
+     #ifndef DEBUG
+     return;
+     #endif
+
+     for (size_t i = 0; i < size; ++i) {
+         Serial.print("Element ");
+         Serial.print(i);
+         Serial.print(": Nummer = ");
+         Serial.print(elements[i].nummer);
+         Serial.print(", Status = ");
+         Serial.println(elements[i].status ? "true" : "false");
+     }
 }
 
 // Initialisierung mit Makro

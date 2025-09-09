@@ -39,8 +39,8 @@
 
 
 
-// Debug-Ausgabe steuern
-extern const bool DEBUG;
+// Debug-Ausgabe steuern via #define in defines.h
+// (extern const bool DEBUG entfernt)
 
 
 

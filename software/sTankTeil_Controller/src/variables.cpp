@@ -17,8 +17,8 @@
 
 #include "variables.h"
 
-// Debug-Ausgabe steuern
-const bool DEBUG = false;
+// Debug-Ausgabe steuern via #define in defines.h
+// (const bool DEBUG = false; entfernt)
 
 
 
@@ -33,7 +33,7 @@ FlowSensor flowSensor(PIN_FLOW);                 // Flowsensor mit Defaultwerten
 PressureSensor pressureSensor(PIN_PRESSURE);     // Drucksensor mit Defaultwerten (30 PSI)
 
 // UART-Kommunikation
-UartCommunication remoteCom(PIN_SOFT_RX, PIN_SOFT_TX, true);
+UartCommunication remoteCom(PIN_SOFT_RX, PIN_SOFT_TX);
 
 // Batteriespannung
 VoltageReader voltReader(PIN_BATT_MESURE, 5.0, 10);
@@ -64,7 +64,7 @@ bool initModelData = false;
 bool bSendBroadcast = false;
 
 // Pumpsequenz
-PumpSequence pumpSeq(10);
+PumpSequence pumpSeq;
 
 // Modell
 ModelParameters model;
