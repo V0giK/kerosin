@@ -163,20 +163,18 @@ void setup() {
 
 void loop() {
   bool hasActivity = false;
-  hasActivity = remoteCom.tick();         // Remote prüfen
-  buttonManager.update();   // Taster-Logik aktualisieren
-  hasActivity |= buffer_tick();
+
+  if(pump.isOn() || pumpSeq.isProcessing()) hasActivity = true;
+  hasActivity |= remoteCom.tick();  // Remote prüfen
+  buttonManager.update();           // Taster-Logik aktualisieren
+  hasActivity |= buffer_tick();     // Eingangs-Puffer verarbeiten
 
   if(hasActivity) buzzer.updateActivity();
   buzzer.checkReminder();
 
-  if(pump.isOn() || pumpSeq.isProcessing()) hasActivity = true;
-
-  // Batteriespannung
   // Berechne die Spannung
   voltReader.readVoltage();
-
-
+  // LED-Status aktualisieren
   ledController.update();
 
 
