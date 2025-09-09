@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "PumpSequence.h"
+#include "variables.h"
 
 // Konstruktor
 PumpSequence::PumpSequence() : currentIndex(0) {
@@ -83,14 +84,18 @@ void PumpSequence::setCurrentID(size_t id) {
 
 // Element ausgeben (Debug)
 void PumpSequence::printElements() {
-    for (size_t i = 0; i < size; ++i) {
-        Serial.print("Element ");
-        Serial.print(i);
-        Serial.print(": Nummer = ");
-        Serial.print(elements[i].nummer);
-        Serial.print(", Status = ");
-        Serial.println(elements[i].status ? "true" : "false");
-    }
+     #ifndef DEBUG
+     return;
+     #endif
+
+     for (size_t i = 0; i < size; ++i) {
+         Serial.print("Element ");
+         Serial.print(i);
+         Serial.print(": Nummer = ");
+         Serial.print(elements[i].nummer);
+         Serial.print(", Status = ");
+         Serial.println(elements[i].status ? "true" : "false");
+     }
 }
 
 // Initialisierung mit Makro

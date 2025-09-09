@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "SystemConfigManager.h"
+#include "variables.h"
 
 // Konstruktor
 SystemConfigManager::SystemConfigManager(int eepromAddress)
@@ -25,20 +26,24 @@ void SystemConfigManager::loadConfig() {
     readConfigFromEEPROM();
 
     if (!isValid()) {
-        Serial.println("Ungültige Konfiguration. Setze auf Standardwerte...");
-        delay(10);
-        resetToDefaults();
-    } else {
-        Serial.println("Konfiguration erfolgreich geladen.");
-        delay(10);
-    }
+         #ifdef DEBUG
+         Serial.println("Ungültige Konfiguration. Setze auf Standardwerte...");
+         Serial.flush();
+         #endif
+         resetToDefaults();
+     } else {
+         #ifdef DEBUG
+         Serial.println("Konfiguration erfolgreich geladen.");
+         Serial.flush();
+         #endif
+     }
 
-    // Serial.print("Manuelle Pumpenleistung:     [%] "); Serial.println(config.manuellePumpenleistung);
-    // Serial.print("Impulse pro Liter:               "); Serial.println(config.impulseProLiter);
-    // Serial.print("Minimale Akkuspannung:      [mV] "); Serial.println(config.minimalspannungAkku);
-    // Serial.print("Anzahl Messwerte Mittelwert:     "); Serial.println(config.anzahlMesswerteMittelwert);
-    // Serial.print("Systemabschaltung:        [Sek.] "); Serial.println(config.systemabschaltungSekunden);
-    // Serial.print("Signalton:                       "); Serial.println(config.signaltonOn ? "Ein" : "Aus");
+    // Serial.print("Manuelle Pumpenleistung:     [%] "); Serial.println(config.manuellePumpenleistung); Serial.flush();
+    // Serial.print("Impulse pro Liter:               "); Serial.println(config.impulseProLiter); Serial.flush();
+    // Serial.print("Minimale Akkuspannung:      [mV] "); Serial.println(config.minimalspannungAkku); Serial.flush();
+    // Serial.print("Anzahl Messwerte Mittelwert:     "); Serial.println(config.anzahlMesswerteMittelwert); Serial.flush();
+    // Serial.print("Systemabschaltung:        [Sek.] "); Serial.println(config.systemabschaltungSekunden); Serial.flush();
+    // Serial.print("Signalton:                       "); Serial.println(config.signaltonOn ? "Ein" : "Aus"); Serial.flush();
 }
 
 // Konfiguration ins EEPROM schreiben
@@ -47,19 +52,17 @@ void SystemConfigManager::saveConfig() {
     if (config.checksum != newChecksum) {
         config.checksum = newChecksum;
         writeConfigToEEPROM();  // 12 Bytes
-        // Serial.println("Konfiguration gespeichert.");
-        delay(10);
+        // Serial.println("Konfiguration gespeichert."); Serial.flush();
     } else {
-        // Serial.println("Keine Änderungen. Speichern übersprungen.");
-        delay(10);
+        // Serial.println("Keine Änderungen. Speichern übersprungen."); Serial.flush();
     }
 
-    // Serial.print("Manuelle Pumpenleistung:     [%] "); Serial.println(config.manuellePumpenleistung);
-    // Serial.print("Impulse pro Liter:               "); Serial.println(config.impulseProLiter);
-    // Serial.print("Minimale Akkuspannung:      [mV] "); Serial.println(config.minimalspannungAkku);
-    // Serial.print("Anzahl Messwerte Mittelwert:     "); Serial.println(config.anzahlMesswerteMittelwert);
-    // Serial.print("Systemabschaltung:        [Sek.] "); Serial.println(config.systemabschaltungSekunden);
-    // Serial.print("Signalton:                       "); Serial.println(config.signaltonOn ? "Ein" : "Aus");
+    // Serial.print("Manuelle Pumpenleistung:     [%] "); Serial.println(config.manuellePumpenleistung); Serial.flush();
+    // Serial.print("Impulse pro Liter:               "); Serial.println(config.impulseProLiter); Serial.flush();
+    // Serial.print("Minimale Akkuspannung:      [mV] "); Serial.println(config.minimalspannungAkku); Serial.flush();
+    // Serial.print("Anzahl Messwerte Mittelwert:     "); Serial.println(config.anzahlMesswerteMittelwert); Serial.flush();
+    // Serial.print("Systemabschaltung:        [Sek.] "); Serial.println(config.systemabschaltungSekunden); Serial.flush();
+    // Serial.print("Signalton:                       "); Serial.println(config.signaltonOn ? "Ein" : "Aus"); Serial.flush();
 }
 
 // Konfiguration auf Standardwerte zurücksetzen
@@ -74,8 +77,10 @@ void SystemConfigManager::resetToDefaults() {
     config.checksum = calculateChecksum();
 
     writeConfigToEEPROM();
+    #ifdef DEBUG
     Serial.println("Standardwerte gespeichert.");
-    delay(10);
+    Serial.flush();
+    #endif
 }
 
 // Prüfen, ob die Daten valide sind

@@ -25,7 +25,7 @@
 // Strukturdefinition
 struct recData {
     int16_t id;
-    char value[24]; // Fixed size buffer for value
+    char value[32]; // Fixed size buffer for value
 };
 
 // FIFO Buffer

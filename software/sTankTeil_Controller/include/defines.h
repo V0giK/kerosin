@@ -122,3 +122,6 @@
 #define DEFUELL_2TANKS     "3"
 
 #define SW_VERSION "1.0.1"
+
+// Debug switch für compile-time
+// #define DEBUG

@@ -16,11 +16,12 @@
  */
 #include "UartCommunication.h"
 #include "defines.h"
+#include "variables.h"
 #include "helper.h"
 
 // Konstruktor
-UartCommunication::UartCommunication(uint8_t rxPin, uint8_t txPin, bool debug)
-    : softSerial(rxPin, txPin), debugEnabled(debug), currentBaudRate(0), writeCallback(nullptr), readCallback(nullptr) {}
+UartCommunication::UartCommunication(uint8_t rxPin, uint8_t txPin)
+    : softSerial(rxPin, txPin), currentBaudRate(0), writeCallback(nullptr), readCallback(nullptr) {}
 
 // Hilfsfunktion für sicheres Lesen einer Zeile ohne String-Allokation
 size_t safeReadString(char *buf, size_t bufSize, NeoSWSerial &serial, char delimiter) {
@@ -57,7 +58,7 @@ bool UartCommunication::tick() {
           if (len > 0) {
             String sValtrim = String(sVal); // Temporär für trim
             sValtrim.trim();
-            debugPrint("Empfangen: " + sValtrim + "-end");
+            //debugPrint("Empfangen: " + sValtrim + "-end");
 
             // ACK prüfen
             if (waitingForAck && strncmp(sVal, "ACK", 3) == 0) {
@@ -103,7 +104,7 @@ bool UartCommunication::sendData(char rw, int16_t id, const char *data, bool wai
     int retries = 0;
     while (retries <= maxRetries) {
         softSerial.println(packet);
-        debugPrint("Gesendet: " + String(packet) + " (Versuch " + String(retries + 1) + ")");
+        //debugPrint("Gesendet: " + String(packet) + " (Versuch " + String(retries + 1) + ")");
 
         if (waitForAck) {
             waitingForAck = true;
@@ -182,13 +183,12 @@ void UartCommunication::processReceivedData(const String &data) {
     //debugPrint("Verarbeitet: Aktion=" + action + ", ID=" + String(id) + ", Wert=" + value);
 }
 
-// Debug-Ausgabe
+// Debug-Ausgabe bei DEBUG=true
 void UartCommunication::debugPrint(const String &message) {
-    if (debugEnabled) {
-        Serial.println("[DEBUG] " + message);
-        delay(10);
-    }
-}
+     #ifdef DEBUG
+     Serial.println("[DEBUG] " + message);
+     #endif
+ }
 
 // SoftwareSerial neu starten
 void UartCommunication::resetSerial() {

@@ -79,15 +79,19 @@ void setup() {
 
   //configManager.resetToDefaults();
 
-
+    #ifdef DEBUG
     Serial.begin(115200);        // Serielle Schnittstelle starten
+    #endif
     // Callbacks registrieren
     remoteCom.setWriteCallback(onWrite);
     remoteCom.setReadCallback(onRead);
 
     bRemoteConnected = !digitalRead(PIN_MOTE_CHK);
-    Serial.print("Mote connected:" ); Serial.println(bRemoteConnected?"true":"false");
-    
+    #ifdef DEBUG
+    Serial.print("Remote connected (PIN_MOTE_CHK="); Serial.print(bRemoteConnected?"true":"false"); Serial.println(")");
+    //Serial.flush();
+    #endif
+
     if(bRemoteConnected) {
       digitalWrite(PIN_MOTE_TXRX, HIGH); // Versorgungsspannung für Kommunikation mit Remote aktivieren (RS422)
       digitalWrite(PIN_MOTE_12V, HIGH); // Versorgungsspannung für Remote aktivieren (12V)
@@ -131,8 +135,10 @@ void setup() {
     voltReader.setCalibrationFactor(configManager.getBattKalibrierungsfaktor() / 10000.0);
     voltReader.setThresholds(configManager.getMinimalspannungAkku() / 10.0, 9.5, voltageAlert);
 
-    if (DEBUG) Serial.println("System gestartet...");
-    Serial.flush();
+    #ifdef DEBUG
+    Serial.println("System gestartet...");
+    //Serial.flush();
+    #endif
 
 
     // LEDs prüfen
@@ -158,7 +164,6 @@ void setup() {
 void loop() {
   bool hasActivity = false;
   hasActivity = remoteCom.tick();         // Remote prüfen
-  
   buttonManager.update();   // Taster-Logik aktualisieren
   hasActivity |= buffer_tick();
 
@@ -205,7 +210,7 @@ void loop() {
   // 5 Sekunden
   if (currentMillis - lastMillis5sec >= INTERVAL_5S) {
     lastMillis5sec = currentMillis;
-
+    // Batteriespannung prüfen
     voltReader.evaluateVoltage(); // Bewertung der Spannung und ggf. Callback-Aufruf
     remoteCom.sendData('W', COM_ID_AKKU_VOLT, voltReader.getLastVoltageString().c_str());
 
