@@ -1,29 +1,5 @@
-# PlatformIO
-**/.pio/
-**/.vscode/
-**/libdeps/
-**/firmware.elf
-**/firmware.bin
-**/firmware.hex
+# Build-Artefakte (lokal erzeugte Firmware/Release-Dateien)
+release-*/
 
-# KiCad
-*.bak
-*.tmp
-*.bck
-*.kicad_prl
-fp-info-cache
-*.dcm
-*.net
-*.xml
-*.pdf
-*-backups/
-*backups/
-*~*.lck
-
-# 3D
-*.f3d
-*.bak
-
-# OS
-.DS_Store
-Thumbs.db
+# Persönliche Editor-Konfigurationen
+.vscode/
