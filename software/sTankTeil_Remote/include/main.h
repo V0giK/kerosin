@@ -60,7 +60,10 @@ extern LGFX tft;
 extern const bool DEBUG;
 
 // VERSION
-#define SW_VERSION "1.1.0-beta"
+#define SW_VERSION_MAJOR 1
+#define SW_VERSION_MINOR 1
+#define SW_VERSION_PATCH 0
+#define SW_VERSION "1.1.0"
 
 // UI Flag Macros for better code maintainability
 #define UI_SET_GO2HOME() (g_uiflags.bits.g_go2home = 1)

@@ -34,8 +34,8 @@
 #include "ModelParameters.h"
 
 // EEPROM-Startadresse (im Normalfall 0)
-#define EEPROM_ADR_CONFIG 0 // Länge 12
-#define EEPROM_ADR_MODEL 13 // Länge 57
+#define EEPROM_ADR_CONFIG 0  // SystemConfig (sizeof ~22 inkl. Padding)
+#define EEPROM_ADR_MODEL 100 // ModelParameters: 49 Bytes Daten + 2 Bytes CRC
 
 
 

@@ -230,7 +230,7 @@ void ModelParameters::writeModelDataToCharArray(char output[MODEL_DATA_SIZE]) {
 uint16_t ModelParameters::calcCkecksum() {
     char modeldata[MODEL_DATA_SIZE];
     writeModelDataToCharArray(modeldata);
-    return calculateCRC(modeldata);
+    return calculateCRC(modeldata, MODEL_DATA_SIZE);
 }
 
 void ModelParameters::saveToEEPROM(int startAddress) {

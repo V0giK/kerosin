@@ -121,7 +121,11 @@
 #define REFUELL_2TANKS     "1,5,4"
 #define DEFUELL_2TANKS     "3"
 
-#define SW_VERSION "1.0.1"
+// VERSION
+#define SW_VERSION_MAJOR 1
+#define SW_VERSION_MINOR 1
+#define SW_VERSION_PATCH 0
+#define SW_VERSION "1.1.0"
 
 // Debug switch für compile-time
 // #define DEBUG

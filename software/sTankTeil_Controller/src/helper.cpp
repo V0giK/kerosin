@@ -17,14 +17,15 @@
  */
 
 #include <avr/sleep.h>
+#include <string.h>
 #include "helper.h"
 
 // CRC-16 Berechnung
-uint16_t calculateCRC(const char *data) {
+uint16_t calculateCRC(const char *data, size_t length) {
     uint16_t crc = 0xFFFF; // Initialer CRC-Wert
 
-    while (*data) { // Iteriere über den C-String
-        crc ^= static_cast<uint16_t>(*data++) << 8; // Byteweise Verarbeitung
+    for (size_t i = 0; i < length; i++) {
+        crc ^= static_cast<uint16_t>(data[i]) << 8; // Byteweise Verarbeitung
         
         for (uint8_t j = 0; j < 8; j++) {
             // Falls höchstes Bit gesetzt ist, XOR mit dem Generatorpolynom
@@ -37,6 +38,11 @@ uint16_t calculateCRC(const char *data) {
     }
 
     return crc & 0xFFFF; // Sicherstellen, dass Ergebnis 16-Bit bleibt
+}
+
+// CRC-16 Berechnung Wrapper
+uint16_t calculateCRC(const char *data) {
+    return calculateCRC(data, strlen(data));
 }
 
 // Arduino Nano in den Power-Down-Modus zu versetzen

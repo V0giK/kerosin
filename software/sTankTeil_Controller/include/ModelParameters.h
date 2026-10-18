@@ -48,8 +48,8 @@ private:
     int pumpStopHopperPressureDiff;
 
     void getShortModelname(char buffer[16]);
-    // 15 Bytes für modelName + 20 * 2 Bytes für die int-Werte = 55 Bytes
-    static const size_t MODEL_DATA_SIZE = 15 + (20 * 2);
+    // 15 Bytes für modelName + 17 * 2 Bytes für die int-Werte = 49 Bytes
+    static const size_t MODEL_DATA_SIZE = 15 + (17 * 2);
 
 public:
     // Konstruktor

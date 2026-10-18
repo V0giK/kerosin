@@ -19,5 +19,6 @@
 
 #include <Arduino.h>
 
+uint16_t calculateCRC(const char *data, size_t length);
 uint16_t calculateCRC(const char *data);
 void enterSleepNano();

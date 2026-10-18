@@ -59,6 +59,8 @@ void voltageAlert(const char* message, unsigned long duration) {
 
 void setup() {
 
+  pinMode(PIN_MOTE_CHK, INPUT); // Remote an/ausgesteckt
+
   pinMode(PIN_LED_MODEL, OUTPUT);   // LED model
   pinMode(PIN_LED_MANUEL, OUTPUT);  // LED manuel
   // pinMode(PIN_LED_BATT, OUTPUT);    // LED batt. low
@@ -68,13 +70,13 @@ void setup() {
   digitalWrite(PIN_MOTE_12V, LOW);
 
   // {
-    // Serial.println("Lösche EEPROM...");
-    // // EEPROM löschen
-    // for (int i = 0; i < EEPROM.length(); i++) {
-    //     EEPROM.write(i, 0xFF); // 0xFF entspricht einem leeren Wert
-    // }
-    // Serial.println("EEPROM wurde geleert.");
-    // return;
+  //   Serial.println("Lösche EEPROM...");
+  //   // EEPROM löschen
+  //   for (int i = 0; i < EEPROM.length(); i++) {
+  //       EEPROM.write(i, 0xFF); // 0xFF entspricht einem leeren Wert
+  //   }
+  //   Serial.println("EEPROM wurde geleert.");
+  //   return;
   // }
 
   //configManager.resetToDefaults();
@@ -94,7 +96,7 @@ void setup() {
 
     if(bRemoteConnected) {
       digitalWrite(PIN_MOTE_TXRX, HIGH); // Versorgungsspannung für Kommunikation mit Remote aktivieren (RS422)
-      digitalWrite(PIN_MOTE_12V, HIGH); // Versorgungsspannung für Remote aktivieren (12V)
+      // digitalWrite(PIN_MOTE_12V, HIGH); // Versorgungsspannung für Remote aktivieren (12V)
       remoteCom.begin(9600);              // 19200 Serielle Schnittstelle mit der Remote initialisieren
 
     } else {
@@ -150,13 +152,13 @@ void setup() {
     digitalWrite(PIN_LED_MANUEL, LOW);
     digitalWrite(PIN_LED_BATT, LOW);
 
-    pinMode(PIN_MOTE_CHK, INPUT);
-    // pinMode(PIN_TASTER_IN, INPUT);
-    // pinMode(PIN_TASTER_OUT, INPUT);
+    // Remote aktivieren, falls vorhanden
+    if(bRemoteConnected) {
+      digitalWrite(PIN_MOTE_12V, HIGH); // Versorgungsspannung für Remote aktivieren (12V)
 
-
-    // ESP32 (Remote) neu starten
-    remoteCom.sendData('W', COM_ID_MC_RESET, "");
+      // ESP32 (Remote) neu starten
+      //remoteCom.sendData('W', COM_ID_MC_RESET, "");
+    }
 
     buzzer.playAcknowledgmentTone();
 }

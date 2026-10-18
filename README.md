@@ -94,6 +94,19 @@ Entwickelt von [V0giK](https://github.com/V0giK) für RC-Tank- & Kerosinsysteme.
 
 ---
 
+## 📌 Aktuelle Version
+
+**v1.1.0** – 2026-10-18
+
+| Komponente | Version |
+|------------|---------|
+| Controller (`sTankTeil_Controller`) | 1.1.0 |
+| Remote (`sTankTeil_Remote`)        | 1.1.0 |
+
+Eine detaillierte Übersicht aller Änderungen befindet sich in der [CHANGELOG.md](CHANGELOG.md).
+
+---
+
 > „This is not just fuel transfer – it's controlled refueling.“
 
 ---
